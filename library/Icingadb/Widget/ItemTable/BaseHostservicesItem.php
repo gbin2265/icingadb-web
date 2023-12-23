@@ -35,7 +35,7 @@ abstract class BaseHostservicesItem extends BaseTableRowItem
                 [
                     'class' => 'subject',
                     'title' => sprintf(
-                        $this->translate('List all Host "%s"'),
+                        $this->translate('Host "%s"'),
                         $this->item->display_name
                     )
                 ]
