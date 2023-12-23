@@ -48,9 +48,17 @@ class HostservicesController extends Controller
         $sortControl = $this->createSortControl(
             $hostservices,
             [
-                'display_name'                         => t('Name'),
-                'services_critical_unhandled desc'     => t('Total Critial'),
-                'services_total desc'                  => t('Total Services')
+                'name'                                 => t('Object Name'),
+                'display_name'                         => t('Display Name'),
+                'services_warning_unhandled desc'      => t('Unhandled Warning'),
+                'services_critical_unhandled desc'     => t('Unhandled Critial'),
+                'services_unknown_unhandled desc'      => t('Unhandled Unknown'),
+                'services_total desc'                  => t('Total Services'),
+                'services_ok desc'                     => t('Ok'),
+                'services_pending desc'                => t('Pending'),
+                'services_total desc'                  => t('Total Services'),
+                'services_warning_handled desc'        => t('Handled Warning'),
+                'services_unknown_handled desc'        => t('Handled Unknown')
             ],
             $defaultSort
         );
