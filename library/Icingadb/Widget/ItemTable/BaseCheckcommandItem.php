@@ -28,18 +28,19 @@ abstract class BaseCheckcommandItem extends BaseTableRowItem
 
     protected function createSubject(): BaseHtmlElement
     {
-        return isset($this->table)
+       return isset($this->table)
             ? new Link(
                 $this->item->display_name,
-                Links::hostDetails($this->item),
+                Links::ServiceCommands($this->item),
                 [
                     'class' => 'subject',
                     'title' => sprintf(
-                        $this->translate('List all Host "%s"'),
+                        $this->translate('List all CheckCommand Services "%s"'),
                         $this->item->display_name
                     )
                 ]
             )
+
             : new HtmlElement(
                 'span',
                 Attributes::create(['class' => 'subject']),

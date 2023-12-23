@@ -145,4 +145,9 @@ abstract class Links
     {
         return Url::fromPath('icingadb/event', ['id' => bin2hex($event->id)]);
     }
+
+    public static function ServiceCommands($command): Url
+    {
+        return Url::fromPath('icingadb/services', ['checkcommand.name' => $command->name]);
+    }
 }
