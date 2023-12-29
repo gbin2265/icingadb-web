@@ -150,4 +150,9 @@ abstract class Links
     {
         return Url::fromPath('icingadb/services', ['checkcommand.name' => $command->name]);
     }
+
+    public static function Serviceservices($service): Url
+    {
+        return Url::fromPath('icingadb/services', ['service.name' => $service->name]);
+    }
 }
