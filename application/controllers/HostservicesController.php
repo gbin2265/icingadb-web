@@ -53,6 +53,7 @@ class HostservicesController extends Controller
                 'services_warning_unhandled desc'      => t('Unhandled Warning'),
                 'services_critical_unhandled desc'     => t('Unhandled Critial'),
                 'services_unknown_unhandled desc'      => t('Unhandled Unknown'),
+                'services_critical_unhandled desc,services_warning_unhandled desc'     => t('Unhandled Critial,Warning'),
                 'services_total desc'                  => t('Total Services'),
                 'services_ok desc'                     => t('Ok'),
                 'services_pending desc'                => t('Pending'),
