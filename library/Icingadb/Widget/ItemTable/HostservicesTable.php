@@ -22,17 +22,8 @@ class HostservicesTable extends BaseItemTable
         $this->setDetailUrl(Url::fromPath('icingadb/hostservices'));
     }
 
-    protected function getLayout(): string
-    {
-        return $this->getViewMode() === 'grid'
-            ? 'group-grid'
-            : parent::getLayout();
-    }
-
     protected function getItemClass(): string
     {
-        return $this->getViewMode() === 'grid'
-            ? HostservicesGridCell::class
-            : HostservicesTableRow::class;
+        return HostservicesTableRow::class;
     }
 }

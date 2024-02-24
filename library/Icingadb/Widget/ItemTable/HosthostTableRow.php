@@ -10,12 +10,6 @@ use Icinga\Module\Icingadb\Widget\Detail\ServiceStatistics;
 use ipl\Html\BaseHtmlElement;
 use ipl\Stdlib\Filter;
 
-/**
- * Hostgroup table row of a hostgroup table. Represents one database row.
- *
- * @property Hostgroup $item
- * @property HostgroupTable $table
- */
 class HosthostTableRow extends BaseHostHostItem
 {
     use TableRowLayout;

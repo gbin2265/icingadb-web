@@ -27,7 +27,7 @@ class CheckcommandController extends Controller
 
     public function indexAction()
     {
-        $this->addTitleTab(t('Host Services'));
+        $this->addTitleTab(t('Checkcommand (group)'));
         $compact = $this->view->compact;
 
         $db = $this->getDb();

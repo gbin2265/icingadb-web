@@ -15,12 +15,6 @@ use ipl\Stdlib\Filter;
 use ipl\Web\Common\BaseTableRowItem;
 use ipl\Web\Widget\Link;
 
-/**
- * Hostgroup item of a hostgroup list. Represents one database row.
- *
- * @property Hostgroup $item
- * @property HostgroupTable $table
- */
 abstract class BaseHostHostItem extends BaseTableRowItem
 {
     use Translation;
@@ -46,6 +40,7 @@ abstract class BaseHostHostItem extends BaseTableRowItem
                     )
                 ]
             )
+
             : new HtmlElement(
                 'span',
                 Attributes::create(['class' => 'subject']),

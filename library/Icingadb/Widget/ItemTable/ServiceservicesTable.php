@@ -22,17 +22,8 @@ class ServiceservicesTable extends BaseItemTable
         $this->setDetailUrl(Url::fromPath('icingadb/serviceservices'));
     }
 
-    protected function getLayout(): string
-    {
-        return $this->getViewMode() === 'grid'
-            ? 'group-grid'
-            : parent::getLayout();
-    }
-
     protected function getItemClass(): string
     {
-        return $this->getViewMode() === 'grid'
-            ? ServiceservicesGridCell::class
-            : ServiceservicesTableRow::class;
+        return ServiceservicesTableRow::class;
     }
 }

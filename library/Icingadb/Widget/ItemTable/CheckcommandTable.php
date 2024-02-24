@@ -22,17 +22,8 @@ class CheckcommandTable extends BaseItemTable
         $this->setDetailUrl(Url::fromPath('icingadb/checkcommand'));
     }
 
-    protected function getLayout(): string
-    {
-        return $this->getViewMode() === 'grid'
-            ? 'group-grid'
-            : parent::getLayout();
-    }
-
     protected function getItemClass(): string
     {
-        return $this->getViewMode() === 'grid'
-            ? CheckcommandGridCell::class
-            : CheckcommandTableRow::class;
+        return CheckcommandTableRow::class;
     }
 }
