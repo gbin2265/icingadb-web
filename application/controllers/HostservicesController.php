@@ -41,9 +41,6 @@ class HostservicesController extends Controller
         $viewModeSwitcher = $this->createViewModeSwitcher($paginationControl, $limitControl);
 
         $defaultSort = null;
-        if ($viewModeSwitcher->getViewMode() === 'grid') {
-            $defaultSort = ['services_severity DESC', 'display_name'];
-        }
 
         $sortControl = $this->createSortControl(
             $hostservices,
@@ -91,7 +88,6 @@ class HostservicesController extends Controller
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
         $this->addControl($limitControl);
-        $this->addControl($viewModeSwitcher);
         $this->addControl($searchBar);
 
         $results = $hostservices->execute();
