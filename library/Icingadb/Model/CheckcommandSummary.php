@@ -55,8 +55,8 @@ class CheckcommandSummary extends UnionModel
     public function getColumns()
     {
         return [
-            'display_name'                => 'checkcommand_name',
-            'name'                        => 'checkcommand_display_name',
+            'display_name'                => 'checkcommand_display_name',
+            'name'                        => 'checkcommand_name',
             'services_critical_handled'   => new Expression(
                 'SUM(CASE WHEN service_state = 2'
                 . ' AND (service_handled = \'y\' OR service_reachable = \'n\') THEN 1 ELSE 0 END)'

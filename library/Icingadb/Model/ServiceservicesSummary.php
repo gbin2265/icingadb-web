@@ -56,6 +56,7 @@ class ServiceservicesSummary extends UnionModel
     {
         return [
             'display_name'                => 'service_name',
+            'name_ci'                     => 'service_name_ci',
             'name'                        => 'service_display_name',
             'services_critical_handled'   => new Expression(
                 'SUM(CASE WHEN service_state = 2'
@@ -114,6 +115,7 @@ class ServiceservicesSummary extends UnionModel
                 ],
                 [
                     'service_name'         => 'service.name',
+                    'service_name_ci'      => 'service.name_ci',
                     'service_display_name' => 'service.name',
                     'service_id'                => 'service.id',
                     'service_state'             => 'state.soft_state',

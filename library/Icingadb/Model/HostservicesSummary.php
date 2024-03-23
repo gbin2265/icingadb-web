@@ -57,6 +57,7 @@ class HostservicesSummary extends UnionModel
         return [
             'display_name'                => 'host_display_name',
             'name'                        => 'host_name',
+            'name_ci'                     => 'host_name_ci',
             'services_critical_handled'   => new Expression(
                 'SUM(CASE WHEN service_state = 2'
                 . ' AND (service_handled = \'y\' OR service_reachable = \'n\') THEN 1 ELSE 0 END)'
@@ -116,6 +117,7 @@ class HostservicesSummary extends UnionModel
                 [
                     'host_id'                   => 'host.id',
                     'host_name'                 => 'host.name',
+                    'host_name_ci'              => 'host.name_ci',
                     'host_display_name'         => 'host.display_name',
                     'service_id'                => 'service.id',
                     'service_state'             => 'state.soft_state',
@@ -130,6 +132,7 @@ class HostservicesSummary extends UnionModel
                 [
                     'host_id'                   => 'host.id',
                     'host_name'                 => 'host.name',
+                    'host_name_ci'              => 'host.name_ci',
                     'host_display_name'         => 'host.display_name',
                     'service_id'                => new Expression('NULL'),
                     'service_state'             => new Expression('NULL'),
