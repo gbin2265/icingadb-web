@@ -99,7 +99,7 @@ abstract class StateListItem extends BaseListItem
     {
         $stateBall = new StateBall($this->state->getStateText(), $this->getStateBallSize());
         $stateBall->add($this->state->getIcon());
-        if (($this->state->is_problem && ($this->state->is_handled || ! $this->state->is_reachable) || $this->state->in_downtime) {
+        if (($this->state->is_problem && ($this->state->is_handled || ! $this->state->is_reachable)) || $this->state->in_downtime) {
             $stateBall->getAttributes()->add('class', 'handled');
         }
 
