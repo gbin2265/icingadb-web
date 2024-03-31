@@ -20,6 +20,7 @@ use Icinga\Module\Icingadb\Redis\VolatileStateResults;
 use Icinga\Module\Icingadb\Web\Controller;
 use Icinga\Module\Icingadb\Widget\Detail\HostDetail;
 use Icinga\Module\Icingadb\Widget\Detail\HostInspectionDetail;
+use Icinga\Module\Icingadb\Widget\Detail\HostMetaInfoLinks;
 use Icinga\Module\Icingadb\Widget\Detail\HostMetaInfo;
 use Icinga\Module\Icingadb\Widget\Detail\QuickActions;
 use Icinga\Module\Icingadb\Widget\ItemList\HostList;
@@ -76,6 +77,7 @@ class HostController extends Controller
             ->setViewMode('objectHeader')
             ->setDetailActionsDisabled()
             ->setNoSubjectLink());
+        $this->addControl(new HostMetaInfoLinks($this->host));
         $this->addControl(new HostMetaInfo($this->host));
         $this->addControl(new QuickActions($this->host));
 
@@ -209,10 +211,10 @@ class HostController extends Controller
         $sortControl = $this->createSortControl(
             $services,
             [
-                'service.display_name'                    => t('Name'),
-                'service.state.severity desc'             => t('Severity'),
-                'service.state.soft_state'                => t('Current State'),
-                'service.state.last_state_change desc'    => t('Last State Change')
+                'service.display_name' => t('Name'),
+                'service.state.severity desc,service.state.last_state_change desc' => t('Severity'),
+                'service.state.soft_state' => t('Current State'),
+                'service.state.last_state_change desc' => t('Last State Change')
             ]
         );
 

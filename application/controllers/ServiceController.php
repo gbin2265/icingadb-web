@@ -20,6 +20,7 @@ use Icinga\Module\Icingadb\Widget\Detail\QuickActions;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceDetail;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceInspectionDetail;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceMetaInfo;
+use Icinga\Module\Icingadb\Widget\Detail\ServiceMetaInfoLinks;
 use Icinga\Module\Icingadb\Widget\ItemList\HistoryList;
 use Icinga\Module\Icingadb\Widget\ItemList\ServiceList;
 use ipl\Stdlib\Filter;
@@ -81,6 +82,7 @@ class ServiceController extends Controller
             ->setViewMode('objectHeader')
             ->setDetailActionsDisabled()
             ->setNoSubjectLink());
+        $this->addControl(new ServiceMetaInfoLinks($this->service));
         $this->addControl(new ServiceMetaInfo($this->service));
         $this->addControl(new QuickActions($this->service));
 
