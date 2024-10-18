@@ -66,11 +66,6 @@ abstract class Links
         return Url::fromPath('icingadb/host/source', ['name' => $host->name]);
     }
 
-    public static function hostDetails($host): Url
-    {
-        return Url::fromPath('icingadb/host', ['name' => $host->name]);
-    }
-
     public static function hostsDetails(): Url
     {
         return Url::fromPath('icingadb/hosts/details');
@@ -144,6 +139,12 @@ abstract class Links
     public static function event(History $event): Url
     {
         return Url::fromPath('icingadb/event', ['id' => bin2hex($event->id)]);
+    }
+
+    /* Add by GeBi */
+    public static function hostDetails($host): Url
+    {
+        return Url::fromPath('icingadb/host', ['name' => $host->name]);
     }
 
     public static function ServiceCommands($command): Url
