@@ -40,8 +40,6 @@ class CheckcommandController extends Controller
         $paginationControl = $this->createPaginationControl($checkcommand);
         $viewModeSwitcher = $this->createViewModeSwitcher($paginationControl, $limitControl);
 
-        $defaultSort = null;
-
         $sortControl = $this->createSortControl(
             $checkcommand,
             [
@@ -58,7 +56,7 @@ class CheckcommandController extends Controller
                 'services_warning_handled desc'        => t('Srv Handled Warning'),
                 'services_unknown_handled desc'        => t('Srv Handled Unknown')
             ],
-            $defaultSort
+            ['services_critical_unhandled desc', 'services_warning_unhandled desc']
         );
 
         $searchBar = $this->createSearchBar($checkcommand, [
