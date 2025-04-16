@@ -50,7 +50,7 @@ class ServicegroupsController extends Controller
             [
                 'display_name'                         => t('Name'),
                 'services_severity desc, display_name' => t('Severity'),
-                'services_total desc'                  => t('Total Services')
+                'services_total desc'                  => t('Total Services'),
                 'services_warning_unhandled desc'      => t('Srv Unhandled Warning'),
                 'services_critical_unhandled desc'     => t('Srv Unhandled Critial'),
                 'services_unknown_unhandled desc'      => t('Srv Unhandled Unknown'),
