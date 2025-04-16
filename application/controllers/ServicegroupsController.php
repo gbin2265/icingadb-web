@@ -7,14 +7,19 @@ namespace Icinga\Module\Icingadb\Controllers;
 use GuzzleHttp\Psr7\ServerRequest;
 use Icinga\Module\Icingadb\Model\Servicegroup;
 use Icinga\Module\Icingadb\Model\ServicegroupSummary;
+use Icinga\Module\Icingadb\View\ServicegroupGridRenderer;
+use Icinga\Module\Icingadb\View\ServicegroupRenderer;
 use Icinga\Module\Icingadb\Web\Control\SearchBar\ObjectSuggestions;
 use Icinga\Module\Icingadb\Web\Controller;
-use Icinga\Module\Icingadb\Widget\ItemTable\ServicegroupTable;
 use Icinga\Module\Icingadb\Web\Control\ViewModeSwitcher;
+use Icinga\Module\Icingadb\Widget\ItemTable\ObjectGrid;
+use Icinga\Module\Icingadb\Widget\ItemTable\ObjectTable;
 use Icinga\Module\Icingadb\Widget\ShowMore;
+use ipl\Html\Attributes;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
 use ipl\Web\Url;
+use ipl\Web\Widget\ItemList;
 
 class ServicegroupsController extends Controller
 {
@@ -40,17 +45,12 @@ class ServicegroupsController extends Controller
         $paginationControl = $this->createPaginationControl($servicegroups);
         $viewModeSwitcher = $this->createViewModeSwitcher($paginationControl, $limitControl);
 
-        $defaultSort = null;
-        if ($viewModeSwitcher->getViewMode() === 'grid') {
-            $defaultSort = ['services_severity DESC', 'display_name'];
-        }
-
         $sortControl = $this->createSortControl(
             $servicegroups,
             [
                 'display_name'                         => t('Name'),
                 'services_severity desc, display_name' => t('Severity'),
-                'services_total desc'                  => t('Total Services'),
+                'services_total desc'                  => t('Total Services')
                 'services_warning_unhandled desc'      => t('Srv Unhandled Warning'),
                 'services_critical_unhandled desc'     => t('Srv Unhandled Critial'),
                 'services_unknown_unhandled desc'      => t('Srv Unhandled Unknown'),
@@ -61,8 +61,8 @@ class ServicegroupsController extends Controller
                 'services_total desc'                  => t('Srv Total Services'),
                 'services_warning_handled desc'        => t('Srv Handled Warning'),
                 'services_unknown_handled desc'        => t('Srv Handled Unknown')
-            ],
-            $defaultSort
+	    ],
+            ['services_severity DESC', 'display_name']
         );
 
         $searchBar = $this->createSearchBar($servicegroups, [
@@ -97,11 +97,13 @@ class ServicegroupsController extends Controller
 
         $results = $servicegroups->execute();
 
-        $this->addContent(
-            (new ServicegroupTable($results))
-                ->setBaseFilter($filter)
-                ->setViewMode($viewModeSwitcher->getViewMode())
-        );
+        if ($viewModeSwitcher->getViewMode() === 'grid') {
+            $content = new ObjectGrid($results, (new ServicegroupGridRenderer())->setBaseFilter($filter));
+        } else {
+            $content = new ObjectTable($results, (new ServicegroupRenderer())->setBaseFilter($filter));
+        }
+
+        $this->addContent($content);
 
         if ($compact) {
             $this->addContent(

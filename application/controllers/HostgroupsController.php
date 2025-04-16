@@ -7,10 +7,13 @@ namespace Icinga\Module\Icingadb\Controllers;
 use GuzzleHttp\Psr7\ServerRequest;
 use Icinga\Module\Icingadb\Model\Hostgroup;
 use Icinga\Module\Icingadb\Model\Hostgroupsummary;
+use Icinga\Module\Icingadb\View\HostgroupGridRenderer;
+use Icinga\Module\Icingadb\View\HostgroupRenderer;
 use Icinga\Module\Icingadb\Web\Control\SearchBar\ObjectSuggestions;
 use Icinga\Module\Icingadb\Web\Controller;
-use Icinga\Module\Icingadb\Widget\ItemTable\HostgroupTable;
 use Icinga\Module\Icingadb\Web\Control\ViewModeSwitcher;
+use Icinga\Module\Icingadb\Widget\ItemTable\ObjectGrid;
+use Icinga\Module\Icingadb\Widget\ItemTable\ObjectTable;
 use Icinga\Module\Icingadb\Widget\ShowMore;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
@@ -40,7 +43,6 @@ class HostgroupsController extends Controller
         $paginationControl = $this->createPaginationControl($hostgroups);
         $viewModeSwitcher = $this->createViewModeSwitcher($paginationControl, $limitControl);
 
-        $defaultSort = null;
         if ($viewModeSwitcher->getViewMode() === 'grid') {
             $hostgroups->without([
                 'services_critical_handled',
@@ -53,8 +55,6 @@ class HostgroupsController extends Controller
                 'services_warning_handled',
                 'services_warning_unhandled',
             ]);
-
-            $defaultSort = ['hosts_severity DESC', 'display_name'];
         }
 
         $sortControl = $this->createSortControl(
@@ -62,7 +62,7 @@ class HostgroupsController extends Controller
             [
                 'display_name'                      => t('Name'),
                 'hosts_severity desc, display_name' => t('Severity'),
-                'hosts_total desc'                  => t('Total Hosts'),
+		'hosts_total desc'                  => t('Total Hosts'),
                 'hosts_down_unhandled desc,hosts_pending desc'  => t('Hst Down Unhandled'),
                 'hosts_down_handled desc,hosts_pending desc'    => t('Hst Down Handled'),
                 'hosts_pending desc'                            => t('Hst Pending'),
@@ -77,7 +77,7 @@ class HostgroupsController extends Controller
                 'services_warning_handled desc'        => t('Srv Handled Warning'),
                 'services_unknown_handled desc'        => t('Srv Handled Unknown')
             ],
-            $defaultSort
+            ['hosts_severity DESC', 'display_name']
         );
 
         $searchBar = $this->createSearchBar($hostgroups, [
@@ -112,11 +112,13 @@ class HostgroupsController extends Controller
 
         $results = $hostgroups->execute();
 
-        $this->addContent(
-            (new HostgroupTable($results))
-                ->setBaseFilter($filter)
-                ->setViewMode($viewModeSwitcher->getViewMode())
-        );
+        if ($viewModeSwitcher->getViewMode() === 'grid') {
+            $content = new ObjectGrid($results, (new HostgroupGridRenderer())->setBaseFilter($filter));
+        } else {
+            $content = new ObjectTable($results, (new HostgroupRenderer())->setBaseFilter($filter));
+        }
+
+        $this->addContent($content);
 
         if ($compact) {
             $this->addContent(
