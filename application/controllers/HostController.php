@@ -25,6 +25,7 @@ use Icinga\Module\Icingadb\Web\Control\ViewModeSwitcher;
 use Icinga\Module\Icingadb\Web\Controller;
 use Icinga\Module\Icingadb\Widget\Detail\HostDetail;
 use Icinga\Module\Icingadb\Widget\Detail\HostInspectionDetail;
+use Icinga\Module\Icingadb\Widget\Detail\HostMetaInfoLinks;
 use Icinga\Module\Icingadb\Widget\Detail\HostMetaInfo;
 use Icinga\Module\Icingadb\Widget\Detail\ObjectHeader;
 use Icinga\Module\Icingadb\Widget\Detail\QuickActions;
@@ -85,7 +86,8 @@ class HostController extends Controller
             $this->controls->addAttributes(['class' => 'overdue']);
         }
 
-        $this->addControl(new HostMetaInfo($this->host));
+        $this->addControl(new HostMetaInfoLinks($this->host));
+	$this->addControl(new HostMetaInfo($this->host));
         $this->addControl(new QuickActions($this->host));
 
         $this->addContent(new HostDetail($this->host, $serviceSummary->first()));

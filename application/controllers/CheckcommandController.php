@@ -6,9 +6,9 @@ namespace Icinga\Module\Icingadb\Controllers;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use Icinga\Module\Icingadb\Model\Servicegroup;
-use Icinga\Module\Icingadb\Model\ServicegroupSummary;
+use Icinga\Module\Icingadb\Model\CheckcommandSummary;
 use Icinga\Module\Icingadb\View\ServicegroupGridRenderer;
-use Icinga\Module\Icingadb\View\ServicegroupRenderer;
+use Icinga\Module\Icingadb\View\CheckcommandRenderer;
 use Icinga\Module\Icingadb\Web\Control\SearchBar\ObjectSuggestions;
 use Icinga\Module\Icingadb\Web\Controller;
 use Icinga\Module\Icingadb\Web\Control\ViewModeSwitcher;
@@ -21,7 +21,7 @@ use ipl\Web\Control\SortControl;
 use ipl\Web\Url;
 use ipl\Web\Widget\ItemList;
 
-class ServicegroupsController extends Controller
+class CheckcommandController extends Controller
 {
     public function init()
     {
@@ -32,25 +32,24 @@ class ServicegroupsController extends Controller
 
     public function indexAction()
     {
-        $this->addTitleTab(t('Service Groups'));
+        $this->addTitleTab(t('Checkcommand (Groups)'));
         $compact = $this->view->compact;
 
         $db = $this->getDb();
 
-        $servicegroups = ServicegroupSummary::on($db);
+        $checkcommand = CheckcommandSummary::on($db);
 
-        $this->handleSearchRequest($servicegroups);
+        $this->handleSearchRequest($checkcommand);
 
         $limitControl = $this->createLimitControl();
-        $paginationControl = $this->createPaginationControl($servicegroups);
+        $paginationControl = $this->createPaginationControl($checkcommand);
         $viewModeSwitcher = $this->createViewModeSwitcher($paginationControl, $limitControl);
 
         $sortControl = $this->createSortControl(
-            $servicegroups,
+            $checkcommand,
             [
-                'display_name'                         => t('Name'),
-                'services_severity desc, display_name' => t('Severity'),
-                'services_total desc'                  => t('Total Services'),
+                'name'                                 => t('Object Name'),
+                'display_name'                         => t('Display Name'),
                 'services_warning_unhandled desc'      => t('Srv Unhandled Warning'),
                 'services_critical_unhandled desc'     => t('Srv Unhandled Critial'),
                 'services_unknown_unhandled desc'      => t('Srv Unhandled Unknown'),
@@ -62,10 +61,10 @@ class ServicegroupsController extends Controller
                 'services_warning_handled desc'        => t('Srv Handled Warning'),
                 'services_unknown_handled desc'        => t('Srv Handled Unknown')
             ],
-            ['services_severity DESC', 'display_name']
+            ['services_critical_unhandled desc', 'services_warning_unhandled desc']
         );
 
-        $searchBar = $this->createSearchBar($servicegroups, [
+        $searchBar = $this->createSearchBar($checkcommand, [
             $limitControl->getLimitParam(),
             $sortControl->getSortParam(),
             $viewModeSwitcher->getViewModeParam()
@@ -83,11 +82,11 @@ class ServicegroupsController extends Controller
             $filter = $searchBar->getFilter();
         }
 
-        $this->filter($servicegroups, $filter);
+        $this->filter($checkcommand, $filter);
 
-        $servicegroups->peekAhead($compact);
+        $checkcommand->peekAhead($compact);
 
-        yield $this->export($servicegroups);
+        yield $this->export($checkcommand);
 
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
@@ -95,12 +94,12 @@ class ServicegroupsController extends Controller
         $this->addControl($viewModeSwitcher);
         $this->addControl($searchBar);
 
-        $results = $servicegroups->execute();
+        $results = $checkcommand->execute();
 
         if ($viewModeSwitcher->getViewMode() === 'grid') {
             $content = new ObjectGrid($results, (new ServicegroupGridRenderer())->setBaseFilter($filter));
         } else {
-            $content = new ObjectTable($results, (new ServicegroupRenderer())->setBaseFilter($filter));
+            $content = new ObjectTable($results, (new CheckcommandRenderer())->setBaseFilter($filter));
         }
 
         $this->addContent($content);
@@ -110,8 +109,8 @@ class ServicegroupsController extends Controller
                 (new ShowMore($results, Url::fromRequest()->without(['showCompact', 'limit', 'view'])))
                     ->setBaseTarget('_next')
                     ->setAttribute('title', sprintf(
-                        t('Show all %d servicegroups'),
-                        $servicegroups->count()
+                        t('Show all %d checkcommand'),
+                        $checkcommand->count()
                     ))
             );
         }

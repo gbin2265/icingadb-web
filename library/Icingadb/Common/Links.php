@@ -140,4 +140,26 @@ abstract class Links
     {
         return Url::fromPath('icingadb/event', ['id' => bin2hex($event->id)]);
     }
+
+    /* Add by GeBi */
+    public static function hostDetails($host): Url
+    {
+        return Url::fromPath('icingadb/host', ['name' => $host->name]);
+    }
+
+    public static function ServiceCommands($command): Url
+    {
+        return Url::fromPath('icingadb/services', ['checkcommand.name' => $command->name]);
+    }
+
+    public static function Serviceservices($service): Url
+    {
+        return Url::fromPath('icingadb/services', ['service.name' => $service->name]);
+    }
+    
+    public static function Hostservices($host): Url
+    {
+        return Url::fromPath('icingadb/services', ['host.name' => $host->name]);
+    }
+    
 }

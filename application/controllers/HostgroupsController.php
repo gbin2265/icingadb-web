@@ -63,6 +63,19 @@ class HostgroupsController extends Controller
                 'display_name'                      => t('Name'),
                 'hosts_severity desc, display_name' => t('Severity'),
                 'hosts_total desc'                  => t('Total Hosts'),
+                'hosts_down_unhandled desc,hosts_pending desc'  => t('Hst Down Unhandled'),
+                'hosts_down_handled desc,hosts_pending desc'    => t('Hst Down Handled'),
+                'hosts_pending desc'                            => t('Hst Pending'),
+                'services_warning_unhandled desc'      => t('Srv Unhandled Warning'),
+                'services_critical_unhandled desc'     => t('Srv Unhandled Critial'),
+                'services_unknown_unhandled desc'      => t('Srv Unhandled Unknown'),
+                'services_critical_unhandled desc,services_warning_unhandled desc'     => t('Srv Unhandled Critial,Warning'),
+                'services_total desc'                  => t('Srv Total Services'),
+                'services_ok desc'                     => t('Srv Ok'),
+                'services_pending desc'                => t('Srv Pending'),
+                'services_total desc'                  => t('Srv Total Services'),
+                'services_warning_handled desc'        => t('Srv Handled Warning'),
+                'services_unknown_handled desc'        => t('Srv Handled Unknown')
             ],
             ['hosts_severity DESC', 'display_name']
         );

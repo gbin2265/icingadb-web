@@ -25,6 +25,7 @@ use Icinga\Module\Icingadb\Widget\Detail\QuickActions;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceDetail;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceInspectionDetail;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceMetaInfo;
+use Icinga\Module\Icingadb\Widget\Detail\ServiceMetaInfoLinks;
 use Icinga\Module\Icingadb\Widget\ItemList\LoadMoreObjectList;
 use Icinga\Module\Icingadb\Widget\ItemList\ObjectList;
 use ipl\Orm\Query;
@@ -95,7 +96,8 @@ class ServiceController extends Controller
             $this->controls->addAttributes(['class' => 'overdue']);
         }
 
-        $this->addControl(new ServiceMetaInfo($this->service));
+        $this->addControl(new ServiceMetaInfoLinks($this->service));
+	$this->addControl(new ServiceMetaInfo($this->service));
         $this->addControl(new QuickActions($this->service));
 
         $this->addContent(new ServiceDetail($this->service));

@@ -6,9 +6,9 @@ namespace Icinga\Module\Icingadb\Controllers;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use Icinga\Module\Icingadb\Model\Servicegroup;
-use Icinga\Module\Icingadb\Model\ServicegroupSummary;
+use Icinga\Module\Icingadb\Model\ServicegroupprojectSummary;
 use Icinga\Module\Icingadb\View\ServicegroupGridRenderer;
-use Icinga\Module\Icingadb\View\ServicegroupRenderer;
+use Icinga\Module\Icingadb\View\ServicegroupprojectRenderer;
 use Icinga\Module\Icingadb\Web\Control\SearchBar\ObjectSuggestions;
 use Icinga\Module\Icingadb\Web\Controller;
 use Icinga\Module\Icingadb\Web\Control\ViewModeSwitcher;
@@ -21,7 +21,7 @@ use ipl\Web\Control\SortControl;
 use ipl\Web\Url;
 use ipl\Web\Widget\ItemList;
 
-class ServicegroupsController extends Controller
+class ServicegroupsprojectController extends Controller
 {
     public function init()
     {
@@ -37,35 +37,25 @@ class ServicegroupsController extends Controller
 
         $db = $this->getDb();
 
-        $servicegroups = ServicegroupSummary::on($db);
+        $servicegroupsproject = ServicegroupprojectSummary::on($db);
 
-        $this->handleSearchRequest($servicegroups);
+        $this->handleSearchRequest($servicegroupsproject);
 
         $limitControl = $this->createLimitControl();
-        $paginationControl = $this->createPaginationControl($servicegroups);
+        $paginationControl = $this->createPaginationControl($servicegroupsproject);
         $viewModeSwitcher = $this->createViewModeSwitcher($paginationControl, $limitControl);
 
         $sortControl = $this->createSortControl(
-            $servicegroups,
+            $servicegroupsproject,
             [
                 'display_name'                         => t('Name'),
                 'services_severity desc, display_name' => t('Severity'),
-                'services_total desc'                  => t('Total Services'),
-                'services_warning_unhandled desc'      => t('Srv Unhandled Warning'),
-                'services_critical_unhandled desc'     => t('Srv Unhandled Critial'),
-                'services_unknown_unhandled desc'      => t('Srv Unhandled Unknown'),
-                'services_critical_unhandled desc,services_warning_unhandled desc'     => t('Srv Unhandled Critial,Warning'),
-                'services_total desc'                  => t('Srv Total Services'),
-                'services_ok desc'                     => t('Srv Ok'),
-                'services_pending desc'                => t('Srv Pending'),
-                'services_total desc'                  => t('Srv Total Services'),
-                'services_warning_handled desc'        => t('Srv Handled Warning'),
-                'services_unknown_handled desc'        => t('Srv Handled Unknown')
+                'services_total desc'                  => t('Total Services')
             ],
             ['services_severity DESC', 'display_name']
         );
 
-        $searchBar = $this->createSearchBar($servicegroups, [
+        $searchBar = $this->createSearchBar($servicegroupsproject, [
             $limitControl->getLimitParam(),
             $sortControl->getSortParam(),
             $viewModeSwitcher->getViewModeParam()
@@ -83,11 +73,11 @@ class ServicegroupsController extends Controller
             $filter = $searchBar->getFilter();
         }
 
-        $this->filter($servicegroups, $filter);
+        $this->filter($servicegroupsproject, $filter);
 
-        $servicegroups->peekAhead($compact);
+        $servicegroupsproject->peekAhead($compact);
 
-        yield $this->export($servicegroups);
+        yield $this->export($servicegroupsproject);
 
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
@@ -95,12 +85,12 @@ class ServicegroupsController extends Controller
         $this->addControl($viewModeSwitcher);
         $this->addControl($searchBar);
 
-        $results = $servicegroups->execute();
+        $results = $servicegroupsproject->execute();
 
         if ($viewModeSwitcher->getViewMode() === 'grid') {
             $content = new ObjectGrid($results, (new ServicegroupGridRenderer())->setBaseFilter($filter));
         } else {
-            $content = new ObjectTable($results, (new ServicegroupRenderer())->setBaseFilter($filter));
+            $content = new ObjectTable($results, (new ServicegroupprojectRenderer())->setBaseFilter($filter));
         }
 
         $this->addContent($content);
@@ -110,8 +100,8 @@ class ServicegroupsController extends Controller
                 (new ShowMore($results, Url::fromRequest()->without(['showCompact', 'limit', 'view'])))
                     ->setBaseTarget('_next')
                     ->setAttribute('title', sprintf(
-                        t('Show all %d servicegroups'),
-                        $servicegroups->count()
+                        t('Show all %d servicegroupsproject'),
+                        $servicegroupsproject->count()
                     ))
             );
         }
@@ -133,7 +123,7 @@ class ServicegroupsController extends Controller
 
     public function searchEditorAction()
     {
-        $editor = $this->createSearchEditor(ServicegroupSummary::on($this->getDb()), [
+        $editor = $this->createSearchEditor(ServicegroupprojectSummary::on($this->getDb()), [
             LimitControl::DEFAULT_LIMIT_PARAM,
             SortControl::DEFAULT_SORT_PARAM,
             ViewModeSwitcher::DEFAULT_VIEW_MODE_PARAM
