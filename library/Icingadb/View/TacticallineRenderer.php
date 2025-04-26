@@ -26,7 +26,7 @@ class TacticallineRenderer implements ItemTableRenderer
 
     public function assembleAttributes($item, Attributes $attributes, string $layout): void
     {
-        $attributes->get('class')->addValue('hostgroup');
+        $attributes->get('class')->addValue('hostgroup hostgroup-table-row tacticalline-table-row');
     }
 
     public function assembleVisual($item, HtmlDocument $visual, string $layout): void
@@ -35,36 +35,40 @@ class TacticallineRenderer implements ItemTableRenderer
 
     public function assembleTitle($item, HtmlDocument $title, string $layout): void
     {
-        if ($layout === 'header') {
-            $title->addHtml(new HtmlElement(
-                'span',
-                Attributes::create(['class' => 'subject']),
-                Text::create($item->name)
-            ));
-        } else {
-            $link = new Link(
-                $item->name,
-                Links::hostgroup($item),
-                [
-                    'class' => 'subject',
-                    'title' => sprintf(
-                        $this->translate('List all hosts in the group "%s"'),
-                        $item->name
-                    )
-                ]
-            );
-
-            if ($this->hasBaseFilter()) {
-                $link->getUrl()->setFilter($this->getBaseFilter());
-            }
-
-            $title->addHtml($link);
-        }
+#        if ($layout === 'header') {
+#            $title->addHtml(new HtmlElement(
+#                'span',
+#                Attributes::create(['class' => 'subject']),
+#                Text::create('')
+##                Text::create($item->name)
+#            ));
+#        } else {
+#            $link = new Link(
+#                '',
+##                $item->name,
+#                Links::hostgroup($item),
+#                [
+#                    'class' => 'subject',
+#                    'title' => sprintf(
+#                        '',
+##                        $this->translate('List all hosts in the group "%s"'),
+#                        ''
+##                        $item->name
+#                    )
+#                ]
+#            );
+#
+#            if ($this->hasBaseFilter()) {
+#                $link->getUrl()->setFilter($this->getBaseFilter());
+#            }
+#
+#            $title->addHtml($link);
+#        }
     }
 
     public function assembleCaption($item, HtmlDocument $caption, string $layout): void
     {
-        $caption->addHtml(Text::create($item->name));
+#        $caption->addHtml(Text::create($item->name));
     }
 
     public function assembleExtendedInfo($item, HtmlDocument $info, string $layout): void
@@ -103,11 +107,13 @@ class TacticallineRenderer implements ItemTableRenderer
      */
     protected function createStatistics(Tacticallinesummary $item): array
     {
-        $hostStats = (new HostStatistics($item))
+	    $hostStats = (new HostStatistics($item))
+	    ->addAttributes(['class' => 'tacticalline-table-row-host'])
             ->setBaseFilter($this->getBaseFilter());
 
 
         $serviceStats = (new ServiceStatistics($item))
+	    ->addAttributes(['class' => 'tacticalline-table-row-service'])
             ->setBaseFilter($this->getBaseFilter());
 
         return [$hostStats, $serviceStats];
