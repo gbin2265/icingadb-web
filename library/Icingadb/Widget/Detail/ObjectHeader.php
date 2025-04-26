@@ -30,7 +30,7 @@ use ipl\Orm\Model;
 use ipl\Web\Layout\HeaderItemLayout;
 use ipl\Web\Layout\ItemLayout;
 use Icinga\Module\Icingadb\Model\Hostgroupprojectsummary;
-use Icinga\Module\Icingadb\Model\ServicegroupprojectSummary
+use Icinga\Module\Icingadb\Model\ServicegroupprojectSummary;
 use Icinga\Module\Icingadb\Model\CheckcommandSummary;
 use Icinga\Module\Icingadb\View\HostgroupprojectRenderer;
 use Icinga\Module\Icingadb\View\ServicegroupprojectRenderer;
