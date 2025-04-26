@@ -23,6 +23,7 @@ use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
 use ipl\Web\Widget\TimeUntil;
+use ipl\Web\Widget\TimeShortDT;
 
 /** @implements ItemRenderer<Comment> */
 class CommentRenderer implements ItemRenderer
@@ -151,7 +152,7 @@ class CommentRenderer implements ItemRenderer
             $info->addHtml(
                 FormattedString::create(
                     $this->translate("created %s"),
-                    new TimeAgo($item->entry_time->getTimestamp())
+                    new TimeShortDT($item->entry_time->getTimestamp())
                 )
             );
         }
