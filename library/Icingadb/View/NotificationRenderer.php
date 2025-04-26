@@ -26,6 +26,7 @@ use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
+use ipl\Web\Widget\TimeShortDT;
 
 /** @implements ItemRenderer<NotificationHistory> */
 class NotificationRenderer implements ItemRenderer
@@ -153,7 +154,7 @@ class NotificationRenderer implements ItemRenderer
 
     public function assembleExtendedInfo($item, HtmlDocument $info, string $layout): void
     {
-        $info->addHtml(new TimeAgo($item->send_time->getTimestamp()));
+        $info->addHtml(new TimeShortDT($item->send_time->getTimestamp()));
     }
 
     public function assembleFooter($item, HtmlDocument $footer, string $layout): void
