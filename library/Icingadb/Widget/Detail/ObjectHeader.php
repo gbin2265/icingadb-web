@@ -10,11 +10,9 @@ use Icinga\Module\Icingadb\Model\Downtime;
 use Icinga\Module\Icingadb\Model\History;
 use Icinga\Module\Icingadb\Model\Host;
 use Icinga\Module\Icingadb\Model\Hostgroupsummary;
-use Icinga\Module\Icingadb\Model\Hostgroupprojectsummary;
 use Icinga\Module\Icingadb\Model\RedundancyGroup;
 use Icinga\Module\Icingadb\Model\Service;
 use Icinga\Module\Icingadb\Model\ServicegroupSummary;
-use Icinga\Module\Icingadb\Model\CheckcommandSummary;
 use Icinga\Module\Icingadb\Model\User;
 use Icinga\Module\Icingadb\Model\Usergroup;
 use Icinga\Module\Icingadb\View\CommentRenderer;
@@ -24,7 +22,6 @@ use Icinga\Module\Icingadb\View\HostgroupRenderer;
 use Icinga\Module\Icingadb\View\HostRenderer;
 use Icinga\Module\Icingadb\View\RedundancyGroupRenderer;
 use Icinga\Module\Icingadb\View\ServicegroupRenderer;
-use Icinga\Module\Icingadb\View\CheckcommandRenderer;
 use Icinga\Module\Icingadb\View\ServiceRenderer;
 use Icinga\Module\Icingadb\View\UsergroupRenderer;
 use Icinga\Module\Icingadb\View\UserRenderer;
@@ -32,6 +29,12 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Orm\Model;
 use ipl\Web\Layout\HeaderItemLayout;
 use ipl\Web\Layout\ItemLayout;
+use Icinga\Module\Icingadb\Model\Hostgroupprojectsummary;
+use Icinga\Module\Icingadb\Model\ServicegroupprojectSummary
+use Icinga\Module\Icingadb\Model\CheckcommandSummary;
+use Icinga\Module\Icingadb\View\HostgroupprojectRenderer;
+use Icinga\Module\Icingadb\View\ServicegroupprojectRenderer;
+use Icinga\Module\Icingadb\View\CheckcommandRenderer;
 
 /**
  * ObjectHeader
@@ -106,6 +109,7 @@ class ObjectHeader extends BaseHtmlElement
                 $renderer = new ServicegroupRenderer();
 
                 break;
+            #GeBi
             case $this->object instanceof Hostgroupprojectsummary:
                 $renderer = new HostgroupprojectRenderer();
 

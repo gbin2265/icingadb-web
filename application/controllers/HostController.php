@@ -25,7 +25,6 @@ use Icinga\Module\Icingadb\Web\Control\ViewModeSwitcher;
 use Icinga\Module\Icingadb\Web\Controller;
 use Icinga\Module\Icingadb\Widget\Detail\HostDetail;
 use Icinga\Module\Icingadb\Widget\Detail\HostInspectionDetail;
-use Icinga\Module\Icingadb\Widget\Detail\HostMetaInfoLinks;
 use Icinga\Module\Icingadb\Widget\Detail\HostMetaInfo;
 use Icinga\Module\Icingadb\Widget\Detail\ObjectHeader;
 use Icinga\Module\Icingadb\Widget\Detail\QuickActions;
@@ -40,6 +39,7 @@ use ipl\Web\Control\SortControl;
 use ipl\Web\Url;
 use ipl\Web\Widget\Tabs;
 use Generator;
+use Icinga\Module\Icingadb\Widget\Detail\HostMetaInfoLinks;
 
 class HostController extends Controller
 {

@@ -7,18 +7,18 @@ namespace Icinga\Module\Icingadb\Widget\ItemTable;
 use Icinga\Exception\NotImplementedError;
 use Icinga\Module\Icingadb\Common\DetailActions;
 use Icinga\Module\Icingadb\Model\Hostgroupsummary;
-use Icinga\Module\Icingadb\Model\Hostgroupprojectsummary;
 use Icinga\Module\Icingadb\Model\ServicegroupSummary;
+use ipl\Html\ValidHtml;
+use ipl\Stdlib\Filter;
+use ipl\Web\Url;
+use ipl\Web\Widget\ItemTable;
+use Icinga\Module\Icingadb\Model\Hostgroupprojectsummary;
 use Icinga\Module\Icingadb\Model\Servicegroupprojectsummary;
 use Icinga\Module\Icingadb\Model\Checkcommandsummary;
 use Icinga\Module\Icingadb\Model\Hosthostsummary;
 use Icinga\Module\Icingadb\Model\Hostservicessummary;
 use Icinga\Module\Icingadb\Model\Serviceservicessummary;
 use Icinga\Module\Icingadb\Model\TacticallineSummary;
-use ipl\Html\ValidHtml;
-use ipl\Stdlib\Filter;
-use ipl\Web\Url;
-use ipl\Web\Widget\ItemTable;
 
 /**
  * ObjectTable
@@ -61,12 +61,13 @@ class ObjectTable extends ItemTable
                 $this->setDetailUrl(Url::fromPath('icingadb/hostgroup'));
 
                 break;
-            case $data instanceof Hostgroupprojectsummary:
-                $this->setDetailUrl(Url::fromPath('icingadb/hostgroupsproject'));
-
-                break;
             case $data instanceof ServicegroupSummary:
                 $this->setDetailUrl(Url::fromPath('icingadb/servicegroup'));
+
+                break;
+            # GeBi
+            case $data instanceof Hostgroupprojectsummary:
+                $this->setDetailUrl(Url::fromPath('icingadb/hostgroupsproject'));
 
                 break;
             case $data instanceof ServicegroupprojectSummary:

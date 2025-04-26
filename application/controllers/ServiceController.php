@@ -25,7 +25,6 @@ use Icinga\Module\Icingadb\Widget\Detail\QuickActions;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceDetail;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceInspectionDetail;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceMetaInfo;
-use Icinga\Module\Icingadb\Widget\Detail\ServiceMetaInfoLinks;
 use Icinga\Module\Icingadb\Widget\ItemList\LoadMoreObjectList;
 use Icinga\Module\Icingadb\Widget\ItemList\ObjectList;
 use ipl\Orm\Query;
@@ -36,6 +35,7 @@ use ipl\Web\Control\SortControl;
 use ipl\Web\Url;
 use ipl\Web\Widget\Tabs;
 use Generator;
+use Icinga\Module\Icingadb\Widget\Detail\ServiceMetaInfoLinks;
 
 class ServiceController extends Controller
 {
