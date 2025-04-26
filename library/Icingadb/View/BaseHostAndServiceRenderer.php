@@ -89,10 +89,8 @@ abstract class BaseHostAndServiceRenderer implements ItemRenderer
                 }
             }
 
-            $stateChange->setIcon($item->state->getIcon());
-            $stateChange->setHandled(
-                $item->state->is_problem && ($item->state->is_handled || ! $item->state->is_reachable)
-            );
+	    $stateChange->setIcon($item->state->getIcon());
+	    $stateChange->setHandled(($item->state->is_problem && ($item->state->is_handled || ! $item->state->is_reachable)) || $item->state->in_downtime);
 
             $visual->addHtml($stateChange);
 
@@ -103,7 +101,7 @@ abstract class BaseHostAndServiceRenderer implements ItemRenderer
 
         $stateBall = new StateBall($item->state->getStateText(), $ballSize);
         $stateBall->add($item->state->getIcon());
-        if ($item->state->is_problem && ($item->state->is_handled || ! $item->state->is_reachable)) {
+	if (($item->state->is_problem && ($item->state->is_handled || ! $item->state->is_reachable)) [[ $item->state->in_downtime) {
             $stateBall->getAttributes()->add('class', 'handled');
         }
 
