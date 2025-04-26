@@ -11,7 +11,7 @@ use Icinga\Module\Icingadb\View\ServicegroupGridRenderer;
 use Icinga\Module\Icingadb\View\HosthostRenderer;
 use Icinga\Module\Icingadb\Web\Control\SearchBar\ObjectSuggestions;
 use Icinga\Module\Icingadb\Web\Controller;
-use Icinga\Module\Icingadb\Web\Control\ViewModeSwitcher;
+#use Icinga\Module\Icingadb\Web\Control\ViewModeSwitcher;
 use Icinga\Module\Icingadb\Widget\ItemTable\ObjectGrid;
 use Icinga\Module\Icingadb\Widget\ItemTable\ObjectTable;
 use Icinga\Module\Icingadb\Widget\ShowMore;
@@ -43,7 +43,7 @@ class HosthostController extends Controller
 
         $limitControl = $this->createLimitControl();
         $paginationControl = $this->createPaginationControl($hosthost);
-        $viewModeSwitcher = $this->createViewModeSwitcher($paginationControl, $limitControl);
+#        $viewModeSwitcher = $this->createViewModeSwitcher($paginationControl, $limitControl);
 
         $sortControl = $this->createSortControl(
             $hosthost,
@@ -91,29 +91,29 @@ class HosthostController extends Controller
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
         $this->addControl($limitControl);
-        $this->addControl($viewModeSwitcher);
+#        $this->addControl($viewModeSwitcher);
 #        $this->addControl($searchBar);
 
         $results = $hosthost->execute();
 
-        if ($viewModeSwitcher->getViewMode() === 'grid') {
-            $content = new ObjectGrid($results, (new ServicegroupGridRenderer())->setBaseFilter($filter));
-        } else {
-            $content = new ObjectTable($results, (new HosthostRenderer())->setBaseFilter($filter));
-        }
+#        if ($viewModeSwitcher->getViewMode() === 'grid') {
+#            $content = new ObjectGrid($results, (new ServicegroupGridRenderer())->setBaseFilter($filter));
+#        } else {
+        $content = new ObjectTable($results, (new HosthostRenderer())->setBaseFilter($filter));
+#        }
 
         $this->addContent($content);
 
-        if ($compact) {
-            $this->addContent(
-                (new ShowMore($results, Url::fromRequest()->without(['showCompact', 'limit', 'view'])))
-                    ->setBaseTarget('_next')
-                    ->setAttribute('title', sprintf(
-                        t('Show all %d hosthost'),
-                        $hosthost->count()
-                    ))
-            );
-        }
+#        if ($compact) {
+#            $this->addContent(
+#                (new ShowMore($results, Url::fromRequest()->without(['showCompact', 'limit', 'view'])))
+#                    ->setBaseTarget('_next')
+#                    ->setAttribute('title', sprintf(
+#                        t('Show all %d hosthost'),
+#                        $hosthost->count()
+#                    ))
+#            );
+#        }
 
 #        if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
 #            $this->sendMultipartUpdate();
@@ -122,23 +122,23 @@ class HosthostController extends Controller
         $this->setAutorefreshInterval(30);
     }
 
-    public function completeAction()
-    {
-        $suggestions = new ObjectSuggestions();
-        $suggestions->setModel(Hostgroup::class);
-        $suggestions->forRequest(ServerRequest::fromGlobals());
-        $this->getDocument()->add($suggestions);
-    }
+#   public function completeAction()
+#    {
+#        $suggestions = new ObjectSuggestions();
+#        $suggestions->setModel(Hostgroup::class);
+#        $suggestions->forRequest(ServerRequest::fromGlobals());
+#        $this->getDocument()->add($suggestions);
+#    }
 
-    public function searchEditorAction()
-    {
-        $editor = $this->createSearchEditor(HosthostSummary::on($this->getDb()), [
-            LimitControl::DEFAULT_LIMIT_PARAM,
-            SortControl::DEFAULT_SORT_PARAM,
-            ViewModeSwitcher::DEFAULT_VIEW_MODE_PARAM
-        ]);
-
-        $this->getDocument()->add($editor);
-        $this->setTitle(t('Adjust Filter'));
-    }
+#    public function searchEditorAction()
+#    {
+#        $editor = $this->createSearchEditor(HosthostSummary::on($this->getDb()), [
+#            LimitControl::DEFAULT_LIMIT_PARAM,
+#            SortControl::DEFAULT_SORT_PARAM,
+#            ViewModeSwitcher::DEFAULT_VIEW_MODE_PARAM
+#        ]);
+#
+#        $this->getDocument()->add($editor);
+#        $this->setTitle(t('Adjust Filter'));
+#    }
 }
