@@ -26,7 +26,7 @@ class TacticallineRenderer implements ItemTableRenderer
 
     public function assembleAttributes($item, Attributes $attributes, string $layout): void
     {
-        $attributes->get('class')->addValue('hostgroup hostgroup-table-row tacticalline-table-row');
+        $attributes->get('class')->addValue('tacticalline-table-row');
     }
 
     public function assembleVisual($item, HtmlDocument $visual, string $layout): void
@@ -35,12 +35,12 @@ class TacticallineRenderer implements ItemTableRenderer
 
     public function assembleTitle($item, HtmlDocument $title, string $layout): void
     {
-#        if ($layout === 'header') {
+ #       if ($layout === 'header') {
 #            $title->addHtml(new HtmlElement(
 #                'span',
 #                Attributes::create(['class' => 'subject']),
-#                Text::create('')
-##                Text::create($item->name)
+#               Text::create('GeBi')
+#                Text::create($item->name)
 #            ));
 #        } else {
 #            $link = new Link(
@@ -48,7 +48,7 @@ class TacticallineRenderer implements ItemTableRenderer
 ##                $item->name,
 #                Links::hostgroup($item),
 #                [
-#                    'class' => 'subject',
+#                    'class' => 'subject gebi',
 #                    'title' => sprintf(
 #                        '',
 ##                        $this->translate('List all hosts in the group "%s"'),
@@ -63,7 +63,7 @@ class TacticallineRenderer implements ItemTableRenderer
 #            }
 #
 #            $title->addHtml($link);
-#        }
+#       }
     }
 
     public function assembleCaption($item, HtmlDocument $caption, string $layout): void

@@ -79,7 +79,7 @@ class ObjectTable extends ItemTable
 
                 break;
             case $data instanceof HosthostSummary:
-                $this->setDetailUrl(Url::fromPath('icingadb/hosthost'));
+		$this->setDetailUrl(Url::fromPath('icingadb/hosthost'));
 
                 break;
             case $data instanceof ServiceservicesSummary:
@@ -91,7 +91,8 @@ class ObjectTable extends ItemTable
 
 		break;
             case $data instanceof TacticallineSummary:
-                $this->setDetailUrl(Url::fromPath('icingadb/tacticalline'));
+		    $this->setDetailUrl(Url::fromPath('icingadb/tacticalline'));
+		    $this->addAttributes(['class' => 'tacticalline-table']);
 
 		break;
             default:

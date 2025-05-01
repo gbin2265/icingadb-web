@@ -43,7 +43,7 @@ class TacticallineController extends Controller
 
         $this->addContent($content);
 
-        $this->setAutorefreshInterval(10);
+        $this->setAutorefreshInterval(3600);
 
     }
 
