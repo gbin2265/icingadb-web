@@ -101,6 +101,7 @@ class ServiceservicesController extends Controller
 #        } else {
         $content = new ObjectTable($results, (new ServiceservicesRenderer())->setBaseFilter($filter));
 #        }
+        $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
 

@@ -101,6 +101,7 @@ class CheckcommandController extends Controller
 #        } else {
         $content = new ObjectTable($results, (new CheckcommandRenderer())->setBaseFilter($filter));
 #        }
+        $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
 

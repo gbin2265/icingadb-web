@@ -92,6 +92,7 @@ class ServicegroupsprojectController extends Controller
 #        } else {
         $content = new ObjectTable($results, (new ServicegroupprojectRenderer())->setBaseFilter($filter));
 #        }
+        $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
 

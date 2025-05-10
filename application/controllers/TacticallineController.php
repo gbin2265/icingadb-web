@@ -41,6 +41,8 @@ class TacticallineController extends Controller
 
         $content = new ObjectTable($results, (new TacticallineRenderer())->setBaseFilter($filter));
 
+        $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
+
         $this->addContent($content);
 
         $this->setAutorefreshInterval(3600);

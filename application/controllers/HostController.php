@@ -159,6 +159,7 @@ class HostController extends Controller
         $page = $paginationControl->getCurrentPageNumber();
 
         if ($page > 1 && ! $compact) {
+            $history->resetOffset();
             $history->limit($page * $limitControl->getLimit());
         }
 
@@ -224,7 +225,8 @@ class HostController extends Controller
         yield $this->export($services);
 
         $serviceList = (new ObjectList($services))
-            ->setViewMode($viewModeSwitcher->getViewMode());
+            ->setViewMode($viewModeSwitcher->getViewMode())
+            ->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
@@ -290,6 +292,7 @@ class HostController extends Controller
         $this->addContent(
             (new ObjectList($nodesQuery))
                 ->setViewMode($viewModeSwitcher->getViewMode())
+                ->setEmptyStateMessage($paginationControl->getEmptyStateMessage())
         );
 
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
@@ -360,6 +363,7 @@ class HostController extends Controller
         $this->addContent(
             (new ObjectList($nodesQuery))
                 ->setViewMode($viewModeSwitcher->getViewMode())
+                ->setEmptyStateMessage($paginationControl->getEmptyStateMessage())
         );
 
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {

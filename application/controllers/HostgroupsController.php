@@ -76,7 +76,7 @@ class HostgroupsController extends Controller
                 'services_total desc'                  => t('Srv Total Services'),
                 'services_warning_handled desc'        => t('Srv Handled Warning'),
                 'services_unknown_handled desc'        => t('Srv Handled Unknown')
-            ],
+	    ],
             ['hosts_severity DESC', 'display_name']
         );
 
@@ -117,6 +117,8 @@ class HostgroupsController extends Controller
         } else {
             $content = new ObjectTable($results, (new HostgroupRenderer())->setBaseFilter($filter));
         }
+
+        $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
 

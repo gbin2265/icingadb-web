@@ -101,6 +101,7 @@ class HosthostController extends Controller
 #        } else {
         $content = new ObjectTable($results, (new HosthostRenderer())->setBaseFilter($filter));
 #        }
+        $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
 

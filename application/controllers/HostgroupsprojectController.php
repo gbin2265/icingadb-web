@@ -104,6 +104,7 @@ class HostgroupsprojectController extends Controller
 #        } else {
         $content = new ObjectTable($results, (new HostgroupprojectRenderer())->setBaseFilter($filter));
 #        }
+        $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
 

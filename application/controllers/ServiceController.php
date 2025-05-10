@@ -160,6 +160,7 @@ class ServiceController extends Controller
         $this->addContent(
             (new ObjectList($nodesQuery))
                 ->setViewMode($viewModeSwitcher->getViewMode())
+                ->setEmptyStateMessage($paginationControl->getEmptyStateMessage())
         );
 
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
@@ -231,6 +232,7 @@ class ServiceController extends Controller
         $this->addContent(
             (new ObjectList($nodesQuery))
                 ->setViewMode($viewModeSwitcher->getViewMode())
+                ->setEmptyStateMessage($paginationControl->getEmptyStateMessage())
         );
 
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
@@ -305,6 +307,7 @@ class ServiceController extends Controller
         $page = $paginationControl->getCurrentPageNumber();
 
         if ($page > 1 && ! $compact) {
+            $history->resetOffset();
             $history->limit($page * $limitControl->getLimit());
         }
 
