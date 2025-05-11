@@ -11,7 +11,6 @@ use Icinga\Module\Icingadb\View\ServicegroupGridRenderer;
 use Icinga\Module\Icingadb\View\CheckcommandRenderer;
 use Icinga\Module\Icingadb\Web\Control\SearchBar\ObjectSuggestions;
 use Icinga\Module\Icingadb\Web\Controller;
-#use Icinga\Module\Icingadb\Web\Control\ViewModeSwitcher;
 use Icinga\Module\Icingadb\Widget\ItemTable\ObjectGrid;
 use Icinga\Module\Icingadb\Widget\ItemTable\ObjectTable;
 use Icinga\Module\Icingadb\Widget\ShowMore;
@@ -43,7 +42,6 @@ class CheckcommandController extends Controller
 
         $limitControl = $this->createLimitControl();
         $paginationControl = $this->createPaginationControl($checkcommand);
-#        $viewModeSwitcher = $this->createViewModeSwitcher($paginationControl, $limitControl);
 
         $sortControl = $this->createSortControl(
             $checkcommand,
@@ -67,7 +65,6 @@ class CheckcommandController extends Controller
         $searchBar = $this->createSearchBar($checkcommand, [
             $limitControl->getLimitParam(),
             $sortControl->getSortParam(),
-#            $viewModeSwitcher->getViewModeParam()
         ]);
 
         if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
@@ -91,30 +88,15 @@ class CheckcommandController extends Controller
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
         $this->addControl($limitControl);
-#        $this->addControl($viewModeSwitcher);
         $this->addControl($searchBar);
 
         $results = $checkcommand->execute();
 
-#        if ($viewModeSwitcher->getViewMode() === 'grid') {
-#            $content = new ObjectGrid($results, (new ServicegroupGridRenderer())->setBaseFilter($filter));
-#        } else {
-        $content = new ObjectTable($results, (new CheckcommandRenderer())->setBaseFilter($filter));
-#        }
+	$content = new ObjectTable($results, (new CheckcommandRenderer())->setBaseFilter($filter));
+
         $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
-
-#        if ($compact) {
-#            $this->addContent(
-#                (new ShowMore($results, Url::fromRequest()->without(['showCompact', 'limit', 'view'])))
-#                    ->setBaseTarget('_next')
-#                    ->setAttribute('title', sprintf(
-#                        t('Show all %d checkcommand'),
-#                        $checkcommand->count()
-#                    ))
-#            );
-#        }
 
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
             $this->sendMultipartUpdate();
