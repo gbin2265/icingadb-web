@@ -32,16 +32,9 @@ class TacticallineController extends Controller
 
         yield $this->export($tacticallineSummary);
 
-#        $this->addContent(
-#               (new TacticallineTableRow($tacticallineSummary->first()))
-#                   ->setBaseFilter($filter)
-#        );
-
         $results = $tacticallineSummary->execute();
 
         $content = new ObjectTable($results, (new TacticallineRenderer())->setBaseFilter($filter));
-
-        $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
 
