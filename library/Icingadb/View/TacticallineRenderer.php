@@ -91,8 +91,8 @@ class TacticallineRenderer implements ItemTableRenderer
         [$hostStats, $serviceStats] = $this->createStatistics($item);
 
         if ($this->hasBaseFilter()) {
-            $hostStats->setBaseFilter(Filter::all($hostStats->getBaseFilter(), $this->getBaseFilter()));
-            $serviceStats->setBaseFilter(Filter::all($serviceStats->getBaseFilter(), $this->getBaseFilter()));
+            $hostStats->setBaseFilter(Filter::all($hostStats->getBaseFilter()));
+            $serviceStats->setBaseFilter(Filter::all($serviceStats->getBaseFilter()));
         }
 
         $columns->addHtml($hostStats, $serviceStats);
