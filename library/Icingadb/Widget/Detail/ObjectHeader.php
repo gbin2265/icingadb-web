@@ -48,6 +48,8 @@ use Icinga\Module\Icingadb\View\CheckcommandRenderer;
  */
 class ObjectHeader extends BaseHtmlElement
 {
+    protected $defaultAttributes = ['data-base-target' => '_next'];
+
     /** @var Item */
     protected $object;
 

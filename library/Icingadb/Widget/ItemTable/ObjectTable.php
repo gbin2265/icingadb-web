@@ -96,7 +96,7 @@ class ObjectTable extends ItemTable
 
 		break;
             default:
-                throw new NotImplementedError('Not implemented 2');
+                throw new NotImplementedError('Not implemented');
         }
 
         $this->addDetailFilterAttribute($item, Filter::equal('name', $data->name));
