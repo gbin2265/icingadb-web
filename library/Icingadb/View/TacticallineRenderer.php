@@ -4,21 +4,17 @@
 
 namespace Icinga\Module\Icingadb\View;
 
-use Icinga\Module\Icingadb\Common\Links;
-use Icinga\Module\Icingadb\Model\Tacticallinesummary;
+use Icinga\Module\Icingadb\Model\TacticallineSummary;
 use Icinga\Module\Icingadb\Widget\Detail\HostStatistics;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceStatistics;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlDocument;
-use ipl\Html\HtmlElement;
-use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\BaseFilter;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\ItemTable\ItemTableRenderer;
-use ipl\Web\Widget\Link;
 
-/** @implements ItemTableRenderer<Tacticallinesummary> */
+/** @implements ItemTableRenderer<TacticallineSummary> */
 class TacticallineRenderer implements ItemTableRenderer
 {
     use Translation;
@@ -35,45 +31,14 @@ class TacticallineRenderer implements ItemTableRenderer
 
     public function assembleTitle($item, HtmlDocument $title, string $layout): void
     {
- #       if ($layout === 'header') {
-#            $title->addHtml(new HtmlElement(
-#                'span',
-#                Attributes::create(['class' => 'subject']),
-#               Text::create('GeBi')
-#                Text::create($item->name)
-#            ));
-#        } else {
-#            $link = new Link(
-#                '',
-##                $item->name,
-#                Links::hostgroup($item),
-#                [
-#                    'class' => 'subject gebi',
-#                    'title' => sprintf(
-#                        '',
-##                        $this->translate('List all hosts in the group "%s"'),
-#                        ''
-##                        $item->name
-#                    )
-#                ]
-#            );
-#
-#            if ($this->hasBaseFilter()) {
-#                $link->getUrl()->setFilter($this->getBaseFilter());
-#            }
-#
-#            $title->addHtml($link);
-#       }
     }
 
     public function assembleCaption($item, HtmlDocument $caption, string $layout): void
     {
-#        $caption->addHtml(Text::create($item->name));
     }
 
     public function assembleExtendedInfo($item, HtmlDocument $info, string $layout): void
     {
-        // assembleExtendedInfo() is only called when $layout == header
         $info->addHtml(...$this->createStatistics($item));
     }
 
@@ -83,7 +48,7 @@ class TacticallineRenderer implements ItemTableRenderer
 
     public function assemble($item, string $name, HtmlDocument $element, string $layout): bool
     {
-        return false; // no custom sections
+        return false;
     }
 
     public function assembleColumns($item, HtmlDocument $columns, string $layout): void
@@ -91,8 +56,8 @@ class TacticallineRenderer implements ItemTableRenderer
         [$hostStats, $serviceStats] = $this->createStatistics($item);
 
         if ($this->hasBaseFilter()) {
-            $hostStats->setBaseFilter(Filter::all($hostStats->getBaseFilter()));
-            $serviceStats->setBaseFilter(Filter::all($serviceStats->getBaseFilter()));
+            $hostStats->setBaseFilter(Filter::all($this->getBaseFilter()));
+            $serviceStats->setBaseFilter(Filter::all($this->getBaseFilter()));
         }
 
         $columns->addHtml($hostStats, $serviceStats);
@@ -101,21 +66,21 @@ class TacticallineRenderer implements ItemTableRenderer
     /**
      * Create statistics for the given item
      *
-     * @param Tacticallinesummary $item
+     * @param TacticallineSummary $item
      *
      * @return array{0: HostStatistics, 1: ServiceStatistics}
      */
-    protected function createStatistics(Tacticallinesummary $item): array
+    protected function createStatistics(TacticallineSummary $item): array
     {
-	    $hostStats = (new HostStatistics($item))
-	    ->addAttributes(['class' => 'tacticalline-table-row-host'])
+        $hostStats = (new HostStatistics($item))
+            ->addAttributes(['class' => 'tacticalline-table-row-host'])
             ->setBaseFilter($this->getBaseFilter());
 
-
         $serviceStats = (new ServiceStatistics($item))
-	    ->addAttributes(['class' => 'tacticalline-table-row-service'])
+            ->addAttributes(['class' => 'tacticalline-table-row-service'])
             ->setBaseFilter($this->getBaseFilter());
 
         return [$hostStats, $serviceStats];
     }
 }
+
