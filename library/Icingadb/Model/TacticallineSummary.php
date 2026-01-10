@@ -8,7 +8,6 @@ use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Relations;
 use ipl\Orm\UnionModel;
-use ipl\Sql\Adapter\Pgsql;
 use ipl\Sql\Connection;
 use ipl\Sql\Expression;
 use ipl\Sql\Select;
@@ -21,22 +20,6 @@ class TacticallineSummary extends UnionModel
 
         $q->on($q::ON_SELECT_ASSEMBLED, function (Select $select) use ($q) {
             $model = $q->getModel();
-
-#            $groupBy = $q->getResolver()->qualifyColumnsAndAliases((array) $model->getKeyName(), $model, false);
-#
-#            // For PostgreSQL, ALL non-aggregate SELECT columns must appear in the GROUP BY clause:
-#            if ($q->getDb()->getAdapter() instanceof Pgsql) {
-#                /**
-#                 * Ignore Expressions, i.e. aggregate functions {@see getColumns()},
-#                 * which do not need to be added to the GROUP BY.
-#                 */
-#                $candidates = array_filter($select->getColumns(), 'is_string');
-#                // Remove already considered columns for the GROUP BY, i.e. the primary key.
-#                $candidates = array_diff_assoc($candidates, $groupBy);
-#                $groupBy = array_merge($groupBy, $candidates);
-#           }
-#
-#            $select->groupBy($groupBy);
         });
 
         return $q;
@@ -49,7 +32,7 @@ class TacticallineSummary extends UnionModel
 
     public function getKeyName()
     {
-        return ['id' =>  new Expression('0') ];
+        return ['id' => new Expression('0')];
     }
 
     public function getColumns()
@@ -122,22 +105,22 @@ class TacticallineSummary extends UnionModel
 
     public function getUnions()
     {
-        $unions = [
+        return [
             [
                 Host::class,
                 [
                     'state'
                 ],
                 [
-                    'host_id'                => 'host.id',
-                    'host_state'             => 'state.soft_state',
-                    'host_handled'           => 'state.is_handled',
-                    'host_reachable'         => 'state.is_reachable',
-                    'host_severity'          => 'state.severity',
-                    'service_id'             => new Expression('NULL'),
-                    'service_state'          => new Expression('NULL'),
-                    'service_handled'        => new Expression('NULL'),
-                    'service_reachable'      => new Expression('NULL')
+                    'host_id'           => 'host.id',
+                    'host_state'        => 'state.soft_state',
+                    'host_handled'      => 'state.is_handled',
+                    'host_reachable'    => 'state.is_reachable',
+                    'host_severity'     => 'state.severity',
+                    'service_id'        => new Expression('NULL'),
+                    'service_state'     => new Expression('NULL'),
+                    'service_handled'   => new Expression('NULL'),
+                    'service_reachable' => new Expression('NULL')
                 ]
             ],
             [
@@ -147,20 +130,18 @@ class TacticallineSummary extends UnionModel
                     'state'
                 ],
                 [
-                    'host_id'                => new Expression('NULL'),
-                    'host_state'             => new Expression('NULL'),
-                    'host_handled'           => new Expression('NULL'),
-                    'host_reachable'         => new Expression('NULL'),
-                    'host_severity'          => new Expression('0'),
-                    'service_id'             => 'service.id',
-                    'service_state'          => 'state.soft_state',
-                    'service_handled'        => 'state.is_handled',
-                    'service_reachable'      => 'state.is_reachable'
+                    'host_id'           => new Expression('NULL'),
+                    'host_state'        => new Expression('NULL'),
+                    'host_handled'      => new Expression('NULL'),
+                    'host_reachable'    => new Expression('NULL'),
+                    'host_severity'     => new Expression('0'),
+                    'service_id'        => 'service.id',
+                    'service_state'     => 'state.soft_state',
+                    'service_handled'   => 'state.is_handled',
+                    'service_reachable' => 'state.is_reachable'
                 ]
-            ] 
+            ]
         ];
-
-        return $unions;
     }
 
     public function createBehaviors(Behaviors $behaviors)
@@ -169,19 +150,17 @@ class TacticallineSummary extends UnionModel
             'id'
         ]));
 
-        // This is because there is no better way
         (new Environment())->createBehaviors($behaviors);
     }
 
     public function createRelations(Relations $relations)
     {
-        // This is because there is no better way
         (new Environment())->createRelations($relations);
     }
 
     public function getColumnDefinitions()
     {
-       // This is because there is no better way
         return (new Environment())->getColumnDefinitions();
     }
 }
+

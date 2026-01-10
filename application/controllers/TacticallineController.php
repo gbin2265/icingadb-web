@@ -10,16 +10,14 @@ use Icinga\Module\Icingadb\View\TacticallineRenderer;
 use Icinga\Module\Icingadb\Web\Control\SearchBar\ObjectSuggestions;
 use Icinga\Module\Icingadb\Web\Controller;
 use Icinga\Module\Icingadb\Widget\ItemTable\ObjectTable;
-use ipl\Orm\Query;
-use ipl\Stdlib\Filter;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
+use ipl\Web\Widget\ViewModeSwitcher;
 
 class TacticallineController extends Controller
 {
     public function indexAction()
     {
-
         $this->addTitleTab(t('Tactical Line'));
 
         $db = $this->getDb();
@@ -39,20 +37,19 @@ class TacticallineController extends Controller
         $this->addContent($content);
 
         $this->setAutorefreshInterval(10);
-
     }
 
     public function completeAction()
     {
         $suggestions = new ObjectSuggestions();
-        $suggestions->setModel(ServicestateSummary::class);
+        $suggestions->setModel(TacticallineSummary::class);
         $suggestions->forRequest(ServerRequest::fromGlobals());
         $this->getDocument()->add($suggestions);
     }
 
     public function searchEditorAction()
     {
-        $editor = $this->createSearchEditor(ServicestateSummary::on($this->getDb()), [
+        $editor = $this->createSearchEditor(TacticallineSummary::on($this->getDb()), [
             LimitControl::DEFAULT_LIMIT_PARAM,
             SortControl::DEFAULT_SORT_PARAM,
             ViewModeSwitcher::DEFAULT_VIEW_MODE_PARAM
@@ -62,3 +59,4 @@ class TacticallineController extends Controller
         $this->setTitle(t('Adjust Filter'));
     }
 }
+
