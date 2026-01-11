@@ -13,6 +13,26 @@ use ipl\Sql\Connection;
 use ipl\Sql\Expression;
 use ipl\Sql\Select;
 
+/**
+ * @property string $id
+ * @property string $display_name
+ * @property string $name
+ * @property int $hosts_down_handled
+ * @property int $hosts_down_unhandled
+ * @property int $hosts_pending
+ * @property int $hosts_total
+ * @property int $hosts_up
+ * @property int $hosts_severity
+ * @property int $services_critical_handled
+ * @property int $services_critical_unhandled
+ * @property int $services_ok
+ * @property int $services_pending
+ * @property int $services_total
+ * @property int $services_unknown_handled
+ * @property int $services_unknown_unhandled
+ * @property int $services_warning_handled
+ * @property int $services_warning_unhandled
+ */
 class HosthostSummary extends UnionModel
 {
     public static function on(Connection $db)
@@ -56,6 +76,7 @@ class HosthostSummary extends UnionModel
     {
         return [
             'display_name'                => 'host_display_name',
+            'name'                        => 'host_name',
             'hosts_down_handled'          => new Expression(
                 'SUM(CASE WHEN host_state = 1'
                 . ' AND (host_handled = \'y\' OR host_reachable = \'n\') THEN 1 ELSE 0 END)'
@@ -67,14 +88,13 @@ class HosthostSummary extends UnionModel
             'hosts_pending'               => new Expression(
                 'SUM(CASE WHEN host_state = 99 THEN 1 ELSE 0 END)'
             ),
-            'hosts_total'                    => new Expression(
+            'hosts_total'                 => new Expression(
                 'SUM(CASE WHEN host_state IS NOT NULL THEN 1 ELSE 0 END)'
             ),
             'hosts_up'                    => new Expression(
                 'SUM(CASE WHEN host_state = 0 THEN 1 ELSE 0 END)'
             ),
             'hosts_severity'              => new Expression('MAX(host_severity)'),
-            'name'                        => 'host_name',
             'services_critical_handled'   => new Expression(
                 'SUM(CASE WHEN service_state = 2'
                 . ' AND (service_handled = \'y\' OR service_reachable = \'n\') THEN 1 ELSE 0 END)'
@@ -113,7 +133,7 @@ class HosthostSummary extends UnionModel
 
     public function getSearchColumns()
     {
-        return ['display_name'];
+        return ['display_name', 'name'];
     }
 
     public function getDefaultSort()
@@ -130,17 +150,17 @@ class HosthostSummary extends UnionModel
                     'state'
                 ],
                 [
-                    'host_id'                => 'host.id',
-                    'host_name'              => 'host.name',
-                    'host_display_name'      => 'host.display_name',
-                    'host_state'             => 'state.soft_state',
-                    'host_handled'           => 'state.is_handled',
-                    'host_reachable'         => 'state.is_reachable',
-                    'host_severity'          => 'state.severity',
-                    'service_id'             => new Expression('NULL'),
-                    'service_state'          => new Expression('NULL'),
-                    'service_handled'        => new Expression('NULL'),
-                    'service_reachable'      => new Expression('NULL')
+                    'host_id'           => 'host.id',
+                    'host_name'         => 'host.name',
+                    'host_display_name' => 'host.display_name',
+                    'host_state'        => 'state.soft_state',
+                    'host_handled'      => 'state.is_handled',
+                    'host_reachable'    => 'state.is_reachable',
+                    'host_severity'     => 'state.severity',
+                    'service_id'        => new Expression('NULL'),
+                    'service_state'     => new Expression('NULL'),
+                    'service_handled'   => new Expression('NULL'),
+                    'service_reachable' => new Expression('NULL')
                 ]
             ],
             [
@@ -150,17 +170,17 @@ class HosthostSummary extends UnionModel
                     'state'
                 ],
                 [
-                    'host_id'                => 'host.id',
-                    'host_name'              => 'host.name',
-                    'host_display_name'      => 'host.display_name',
-                    'host_state'             => new Expression('NULL'),
-                    'host_handled'           => new Expression('NULL'),
-                    'host_reachable'         => new Expression('NULL'),
-                    'host_severity'          => new Expression('0'),
-                    'service_id'             => 'service.id',
-                    'service_state'          => 'state.soft_state',
-                    'service_handled'        => 'state.is_handled',
-                    'service_reachable'      => 'state.is_reachable'
+                    'host_id'           => 'host.id',
+                    'host_name'         => 'host.name',
+                    'host_display_name' => 'host.display_name',
+                    'host_state'        => new Expression('NULL'),
+                    'host_handled'      => new Expression('NULL'),
+                    'host_reachable'    => new Expression('NULL'),
+                    'host_severity'     => new Expression('0'),
+                    'service_id'        => 'service.id',
+                    'service_state'     => 'state.soft_state',
+                    'service_handled'   => 'state.is_handled',
+                    'service_reachable' => 'state.is_reachable'
                 ]
             ]
         ];
@@ -174,19 +194,16 @@ class HosthostSummary extends UnionModel
             'id'
         ]));
 
-        // This is because there is no better way
-        (new Hostgroup())->createBehaviors($behaviors);
+        (new Host())->createBehaviors($behaviors);
     }
 
     public function createRelations(Relations $relations)
     {
-        // This is because there is no better way
-        (new Hostgroup())->createRelations($relations);
+        (new Host())->createRelations($relations);
     }
 
     public function getColumnDefinitions()
     {
-        // This is because there is no better way
-        return (new Hostgroup())->getColumnDefinitions();
+        return (new Host())->getColumnDefinitions();
     }
 }

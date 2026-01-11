@@ -18,6 +18,7 @@ use ipl\Sql\Select;
  * @property string $display_name
  * @property string $name_ci
  * @property string $name
+ * @property string $servicegroup_customvar
  * @property int $services_critical_handled
  * @property int $services_critical_unhandled
  * @property int $services_ok
@@ -133,29 +134,29 @@ class ServicegroupprojectSummary extends UnionModel
                     'servicegroup.customvar_flat'
                 ],
                 [
-                    'servicegroup_id'           => 'servicegroup.id',
-                    'servicegroup_name'         => 'servicegroup.name',
-                    'servicegroup_name_ci'      => 'servicegroup.name_ci',
-                    'servicegroup_display_name' => 'servicegroup.display_name',
+                    'servicegroup_id'             => 'servicegroup.id',
+                    'servicegroup_name'           => 'servicegroup.name',
+                    'servicegroup_name_ci'        => 'servicegroup.name_ci',
+                    'servicegroup_display_name'   => 'servicegroup.display_name',
                     'servicegroup_customvar_flat' => 'servicegroup.customvar_flat.flatname',
-                    'service_id'                => 'service.id',
-                    'service_state'             => 'state.soft_state',
-                    'service_handled'           => 'state.is_handled',
-                    'service_reachable'         => 'state.is_reachable',
-                    'service_severity'          => 'state.severity'
+                    'service_id'                  => 'service.id',
+                    'service_state'               => 'state.soft_state',
+                    'service_handled'             => 'state.is_handled',
+                    'service_reachable'           => 'state.is_reachable',
+                    'service_severity'            => 'state.severity'
                 ]
             ],
             [
                 Servicegroup::class,
                 [
-                    'servicegroup.customvar_flat'
+                    'customvar_flat'
                 ],
                 [
                     'servicegroup_id'             => 'servicegroup.id',
                     'servicegroup_name'           => 'servicegroup.name',
                     'servicegroup_name_ci'        => 'servicegroup.name_ci',
                     'servicegroup_display_name'   => 'servicegroup.display_name',
-                    'servicegroup_customvar_flat' => 'servicegroup.customvar_flat.flatname',
+                    'servicegroup_customvar_flat' => 'customvar_flat.flatname',
                     'service_id'                  => new Expression('NULL'),
                     'service_state'               => new Expression('NULL'),
                     'service_handled'             => new Expression('NULL'),
@@ -174,20 +175,16 @@ class ServicegroupprojectSummary extends UnionModel
             'id'
         ]));
 
-        // This is because there is no better way
         (new Servicegroup())->createBehaviors($behaviors);
     }
 
     public function createRelations(Relations $relations)
     {
-        // This is because there is no better way
         (new Servicegroup())->createRelations($relations);
     }
 
     public function getColumnDefinitions()
     {
-        // This is because there is no better way
         return (new Servicegroup())->getColumnDefinitions();
     }
 }
-

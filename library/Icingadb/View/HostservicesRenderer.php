@@ -25,7 +25,7 @@ class HostservicesRenderer implements ItemTableRenderer
 
     public function assembleAttributes($item, Attributes $attributes, string $layout): void
     {
-        $attributes->get('class')->addValue('servicegroup');
+        $attributes->get('class')->addValue('host-services');
     }
 
     public function assembleVisual($item, HtmlDocument $visual, string $layout): void
@@ -68,7 +68,6 @@ class HostservicesRenderer implements ItemTableRenderer
 
     public function assembleExtendedInfo($item, HtmlDocument $info, string $layout): void
     {
-        // assembleExtendedInfo() is only called when $layout == header
         $info->addHtml($this->createStatistics($item));
     }
 
@@ -78,7 +77,7 @@ class HostservicesRenderer implements ItemTableRenderer
 
     public function assemble($item, string $name, HtmlDocument $element, string $layout): bool
     {
-        return false; // no custom sections
+        return false;
     }
 
     public function assembleColumns($item, HtmlDocument $columns, string $layout): void

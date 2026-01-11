@@ -5,20 +5,14 @@
 namespace Icinga\Module\Icingadb\Controllers;
 
 use GuzzleHttp\Psr7\ServerRequest;
-use Icinga\Module\Icingadb\Model\Hostgroup;
+use Icinga\Module\Icingadb\Model\Host;
 use Icinga\Module\Icingadb\Model\HosthostSummary;
-use Icinga\Module\Icingadb\View\ServicegroupGridRenderer;
 use Icinga\Module\Icingadb\View\HosthostRenderer;
 use Icinga\Module\Icingadb\Web\Control\SearchBar\ObjectSuggestions;
 use Icinga\Module\Icingadb\Web\Controller;
-use Icinga\Module\Icingadb\Widget\ItemTable\ObjectGrid;
 use Icinga\Module\Icingadb\Widget\ItemTable\ObjectTable;
-use Icinga\Module\Icingadb\Widget\ShowMore;
-use ipl\Html\Attributes;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
-use ipl\Web\Url;
-use ipl\Web\Widget\ItemList;
 
 class HosthostController extends Controller
 {
@@ -46,23 +40,37 @@ class HosthostController extends Controller
         $sortControl = $this->createSortControl(
             $hosthost,
             [
-                'name'                                 => t('Object Name'),
-                'display_name'                         => t('Display Name'),
-                'services_warning_unhandled desc'      => t('Srv Unhandled Warning'),
-                'services_critical_unhandled desc'     => t('Srv Unhandled Critial'),
-                'services_unknown_unhandled desc'      => t('Srv Unhandled Unknown'),
-                'services_critical_unhandled desc,services_warning_unhandled desc'     => t('Srv Unhandled Critial,Warning'),
-                'services_total desc'                  => t('Srv Total Services'),
-                'services_ok desc'                     => t('Srv Ok'),
-                'services_pending desc'                => t('Srv Pending'),
-                'services_total desc'                  => t('Srv Total Services'),
-                'services_warning_handled desc'        => t('Srv Handled Warning'),
-                'services_unknown_handled desc'        => t('Srv Handled Unknown')
+                'display_name'                                                      => t('Display Name'),
+                'name'                                                              => t('Name'),
+                'services_critical_unhandled desc'                                  => t('Unhandled Critical'),
+                'services_warning_unhandled desc'                                   => t('Unhandled Warning'),
+                'services_unknown_unhandled desc'                                   => t('Unhandled Unknown'),
+                'services_critical_unhandled desc, services_warning_unhandled desc' => t('Unhandled Critical, Warning'),
+                'services_total desc'                                               => t('Total Services'),
+                'services_ok desc'                                                  => t('Ok'),
+                'services_pending desc'                                             => t('Pending'),
+                'services_warning_handled desc'                                     => t('Handled Warning'),
+                'services_unknown_handled desc'                                     => t('Handled Unknown')
             ],
             ['services_critical_unhandled desc', 'services_warning_unhandled desc']
         );
 
-        $filter = $this->getFilter();
+        $searchBar = $this->createSearchBar($hosthost, [
+            $limitControl->getLimitParam(),
+            $sortControl->getSortParam(),
+        ]);
+
+        if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
+            if ($searchBar->hasBeenSubmitted()) {
+                $filter = $this->getFilter();
+            } else {
+                $this->addControl($searchBar);
+                $this->sendMultipartUpdate();
+                return;
+            }
+        } else {
+            $filter = $searchBar->getFilter();
+        }
 
         $this->filter($hosthost, $filter);
 
@@ -73,16 +81,38 @@ class HosthostController extends Controller
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
         $this->addControl($limitControl);
+        $this->addControl($searchBar);
 
         $results = $hosthost->execute();
 
-	$content = new ObjectTable($results, (new HosthostRenderer())->setBaseFilter($filter));
-
+        $content = new ObjectTable($results, (new HosthostRenderer())->setBaseFilter($filter));
         $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
 
+        if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
+            $this->sendMultipartUpdate();
+        }
+
         $this->setAutorefreshInterval(30);
     }
 
+    public function completeAction()
+    {
+        $suggestions = new ObjectSuggestions();
+        $suggestions->setModel(Host::class);
+        $suggestions->forRequest(ServerRequest::fromGlobals());
+        $this->getDocument()->add($suggestions);
+    }
+
+    public function searchEditorAction()
+    {
+        $editor = $this->createSearchEditor(HosthostSummary::on($this->getDb()), [
+            LimitControl::DEFAULT_LIMIT_PARAM,
+            SortControl::DEFAULT_SORT_PARAM
+        ]);
+
+        $this->getDocument()->add($editor);
+        $this->setTitle(t('Adjust Filter'));
+    }
 }

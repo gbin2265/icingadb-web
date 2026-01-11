@@ -18,6 +18,7 @@ use ipl\Sql\Select;
  * @property string $display_name
  * @property string $name_ci
  * @property string $name
+ * @property string $hostgroup_customvar
  * @property int $hosts_down_handled
  * @property int $hosts_down_unhandled
  * @property int $hosts_pending
@@ -34,7 +35,7 @@ use ipl\Sql\Select;
  * @property int $services_warning_handled
  * @property int $services_warning_unhandled
  */
-class Hostgroupprojectsummary extends UnionModel
+class HostgroupprojectSummary extends UnionModel
 {
     public static function on(Connection $db)
     {
@@ -155,20 +156,20 @@ class Hostgroupprojectsummary extends UnionModel
                     'hostgroup.customvar_flat'
                 ],
                 [
-                    'hostgroup_id'           => 'hostgroup.id',
-                    'hostgroup_name'         => 'hostgroup.name',
-                    'hostgroup_name_ci'      => 'hostgroup.name_ci',
-                    'hostgroup_display_name' => 'hostgroup.display_name',
+                    'hostgroup_id'             => 'hostgroup.id',
+                    'hostgroup_name'           => 'hostgroup.name',
+                    'hostgroup_name_ci'        => 'hostgroup.name_ci',
+                    'hostgroup_display_name'   => 'hostgroup.display_name',
                     'hostgroup_customvar_flat' => 'hostgroup.customvar_flat.flatname',
-                    'host_id'                => 'host.id',
-                    'host_state'             => 'state.soft_state',
-                    'host_handled'           => 'state.is_handled',
-                    'host_reachable'         => 'state.is_reachable',
-                    'host_severity'          => 'state.severity',
-                    'service_id'             => new Expression('NULL'),
-                    'service_state'          => new Expression('NULL'),
-                    'service_handled'        => new Expression('NULL'),
-                    'service_reachable'      => new Expression('NULL')
+                    'host_id'                  => 'host.id',
+                    'host_state'               => 'state.soft_state',
+                    'host_handled'             => 'state.is_handled',
+                    'host_reachable'           => 'state.is_reachable',
+                    'host_severity'            => 'state.severity',
+                    'service_id'               => new Expression('NULL'),
+                    'service_state'            => new Expression('NULL'),
+                    'service_handled'          => new Expression('NULL'),
+                    'service_reachable'        => new Expression('NULL')
                 ]
             ],
             [
@@ -179,20 +180,20 @@ class Hostgroupprojectsummary extends UnionModel
                     'hostgroup.customvar_flat'
                 ],
                 [
-                    'hostgroup_id'           => 'hostgroup.id',
-                    'hostgroup_name'         => 'hostgroup.name',
-                    'hostgroup_name_ci'      => 'hostgroup.name_ci',
-                    'hostgroup_display_name' => 'hostgroup.display_name',
+                    'hostgroup_id'             => 'hostgroup.id',
+                    'hostgroup_name'           => 'hostgroup.name',
+                    'hostgroup_name_ci'        => 'hostgroup.name_ci',
+                    'hostgroup_display_name'   => 'hostgroup.display_name',
                     'hostgroup_customvar_flat' => 'hostgroup.customvar_flat.flatname',
-                    'host_id'                => new Expression('NULL'),
-                    'host_state'             => new Expression('NULL'),
-                    'host_handled'           => new Expression('NULL'),
-                    'host_reachable'         => new Expression('NULL'),
-                    'host_severity'          => new Expression('0'),
-                    'service_id'             => 'service.id',
-                    'service_state'          => 'state.soft_state',
-                    'service_handled'        => 'state.is_handled',
-                    'service_reachable'      => 'state.is_reachable'
+                    'host_id'                  => new Expression('NULL'),
+                    'host_state'               => new Expression('NULL'),
+                    'host_handled'             => new Expression('NULL'),
+                    'host_reachable'           => new Expression('NULL'),
+                    'host_severity'            => new Expression('0'),
+                    'service_id'               => 'service.id',
+                    'service_state'            => 'state.soft_state',
+                    'service_handled'          => 'state.is_handled',
+                    'service_reachable'        => 'state.is_reachable'
                 ]
             ],
             [
@@ -201,20 +202,20 @@ class Hostgroupprojectsummary extends UnionModel
                     'customvar_flat'
                 ],
                 [
-                    'hostgroup_id'           => 'hostgroup.id',
-                    'hostgroup_name'         => 'hostgroup.name',
-                    'hostgroup_name_ci'      => 'hostgroup.name_ci',
-                    'hostgroup_display_name' => 'hostgroup.display_name',
+                    'hostgroup_id'             => 'hostgroup.id',
+                    'hostgroup_name'           => 'hostgroup.name',
+                    'hostgroup_name_ci'        => 'hostgroup.name_ci',
+                    'hostgroup_display_name'   => 'hostgroup.display_name',
                     'hostgroup_customvar_flat' => 'customvar_flat.flatname',
-                    'host_id'                => new Expression('NULL'),
-                    'host_state'             => new Expression('NULL'),
-                    'host_handled'           => new Expression('NULL'),
-                    'host_reachable'         => new Expression('NULL'),
-                    'host_severity'          => new Expression('0'),
-                    'service_id'             => new Expression('NULL'),
-                    'service_state'          => new Expression('NULL'),
-                    'service_handled'        => new Expression('NULL'),
-                    'service_reachable'      => new Expression('NULL')
+                    'host_id'                  => new Expression('NULL'),
+                    'host_state'               => new Expression('NULL'),
+                    'host_handled'             => new Expression('NULL'),
+                    'host_reachable'           => new Expression('NULL'),
+                    'host_severity'            => new Expression('0'),
+                    'service_id'               => new Expression('NULL'),
+                    'service_state'            => new Expression('NULL'),
+                    'service_handled'          => new Expression('NULL'),
+                    'service_reachable'        => new Expression('NULL')
                 ]
             ]
         ];
@@ -228,20 +229,16 @@ class Hostgroupprojectsummary extends UnionModel
             'id'
         ]));
 
-        // This is because there is no better way
         (new Hostgroup())->createBehaviors($behaviors);
     }
 
     public function createRelations(Relations $relations)
     {
-        // This is because there is no better way
         (new Hostgroup())->createRelations($relations);
     }
 
     public function getColumnDefinitions()
     {
-        // This is because there is no better way
         return (new Hostgroup())->getColumnDefinitions();
     }
 }
-

@@ -13,6 +13,22 @@ use ipl\Sql\Connection;
 use ipl\Sql\Expression;
 use ipl\Sql\Select;
 
+/**
+ * @property string $id
+ * @property string $display_name
+ * @property string $name
+ * @property string $name_ci
+ * @property int $services_critical_handled
+ * @property int $services_critical_unhandled
+ * @property int $services_ok
+ * @property int $services_pending
+ * @property int $services_total
+ * @property int $services_unknown_handled
+ * @property int $services_unknown_unhandled
+ * @property int $services_warning_handled
+ * @property int $services_warning_unhandled
+ * @property int $services_severity
+ */
 class HostservicesSummary extends UnionModel
 {
     public static function on(Connection $db)
@@ -97,7 +113,7 @@ class HostservicesSummary extends UnionModel
 
     public function getSearchColumns()
     {
-        return ['display_name'];
+        return ['display_name', 'name'];
     }
 
     public function getDefaultSort()
@@ -115,30 +131,30 @@ class HostservicesSummary extends UnionModel
                     'state'
                 ],
                 [
-                    'host_id'                   => 'host.id',
-                    'host_name'                 => 'host.name',
-                    'host_name_ci'              => 'host.name_ci',
-                    'host_display_name'         => 'host.display_name',
-                    'service_id'                => 'service.id',
-                    'service_state'             => 'state.soft_state',
-                    'service_handled'           => 'state.is_handled',
-                    'service_reachable'         => 'state.is_reachable',
-                    'service_severity'          => 'state.severity'
+                    'host_id'           => 'host.id',
+                    'host_name'         => 'host.name',
+                    'host_name_ci'      => 'host.name_ci',
+                    'host_display_name' => 'host.display_name',
+                    'service_id'        => 'service.id',
+                    'service_state'     => 'state.soft_state',
+                    'service_handled'   => 'state.is_handled',
+                    'service_reachable' => 'state.is_reachable',
+                    'service_severity'  => 'state.severity'
                 ]
             ],
             [
                 Host::class,
                 [],
                 [
-                    'host_id'                   => 'host.id',
-                    'host_name'                 => 'host.name',
-                    'host_name_ci'              => 'host.name_ci',
-                    'host_display_name'         => 'host.display_name',
-                    'service_id'                => new Expression('NULL'),
-                    'service_state'             => new Expression('NULL'),
-                    'service_handled'           => new Expression('NULL'),
-                    'service_reachable'         => new Expression('NULL'),
-                    'service_severity'          => new Expression('0')
+                    'host_id'           => 'host.id',
+                    'host_name'         => 'host.name',
+                    'host_name_ci'      => 'host.name_ci',
+                    'host_display_name' => 'host.display_name',
+                    'service_id'        => new Expression('NULL'),
+                    'service_state'     => new Expression('NULL'),
+                    'service_handled'   => new Expression('NULL'),
+                    'service_reachable' => new Expression('NULL'),
+                    'service_severity'  => new Expression('0')
                 ]
             ]
         ];
@@ -152,19 +168,16 @@ class HostservicesSummary extends UnionModel
             'id'
         ]));
 
-        // This is because there is no better way
-        (new Servicegroup())->createBehaviors($behaviors);
+        (new Host())->createBehaviors($behaviors);
     }
 
     public function createRelations(Relations $relations)
     {
-        // This is because there is no better way
-        (new Servicegroup())->createRelations($relations);
+        (new Host())->createRelations($relations);
     }
 
     public function getColumnDefinitions()
     {
-        // This is because there is no better way
-        return (new Servicegroup())->getColumnDefinitions();
+        return (new Host())->getColumnDefinitions();
     }
 }

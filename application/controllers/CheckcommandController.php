@@ -5,20 +5,14 @@
 namespace Icinga\Module\Icingadb\Controllers;
 
 use GuzzleHttp\Psr7\ServerRequest;
-use Icinga\Module\Icingadb\Model\Servicegroup;
+use Icinga\Module\Icingadb\Model\Checkcommand;
 use Icinga\Module\Icingadb\Model\CheckcommandSummary;
-use Icinga\Module\Icingadb\View\ServicegroupGridRenderer;
 use Icinga\Module\Icingadb\View\CheckcommandRenderer;
 use Icinga\Module\Icingadb\Web\Control\SearchBar\ObjectSuggestions;
 use Icinga\Module\Icingadb\Web\Controller;
-use Icinga\Module\Icingadb\Widget\ItemTable\ObjectGrid;
 use Icinga\Module\Icingadb\Widget\ItemTable\ObjectTable;
-use Icinga\Module\Icingadb\Widget\ShowMore;
-use ipl\Html\Attributes;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
-use ipl\Web\Url;
-use ipl\Web\Widget\ItemList;
 
 class CheckcommandController extends Controller
 {
@@ -46,18 +40,17 @@ class CheckcommandController extends Controller
         $sortControl = $this->createSortControl(
             $checkcommand,
             [
-                'name'                                 => t('Object Name'),
-                'display_name'                         => t('Display Name'),
-                'services_warning_unhandled desc'      => t('Srv Unhandled Warning'),
-                'services_critical_unhandled desc'     => t('Srv Unhandled Critial'),
-                'services_unknown_unhandled desc'      => t('Srv Unhandled Unknown'),
-                'services_critical_unhandled desc,services_warning_unhandled desc'     => t('Srv Unhandled Critial,Warning'),
-                'services_total desc'                  => t('Srv Total Services'),
-                'services_ok desc'                     => t('Srv Ok'),
-                'services_pending desc'                => t('Srv Pending'),
-                'services_total desc'                  => t('Srv Total Services'),
-                'services_warning_handled desc'        => t('Srv Handled Warning'),
-                'services_unknown_handled desc'        => t('Srv Handled Unknown')
+                'name'                                                              => t('Name'),
+                'display_name'                                                      => t('Display Name'),
+                'services_critical_unhandled desc'                                  => t('Unhandled Critical'),
+                'services_warning_unhandled desc'                                   => t('Unhandled Warning'),
+                'services_unknown_unhandled desc'                                   => t('Unhandled Unknown'),
+                'services_critical_unhandled desc, services_warning_unhandled desc' => t('Unhandled Critical, Warning'),
+                'services_total desc'                                               => t('Total Services'),
+                'services_ok desc'                                                  => t('Ok'),
+                'services_pending desc'                                             => t('Pending'),
+                'services_warning_handled desc'                                     => t('Handled Warning'),
+                'services_unknown_handled desc'                                     => t('Handled Unknown')
             ],
             ['services_critical_unhandled desc', 'services_warning_unhandled desc']
         );
@@ -92,8 +85,7 @@ class CheckcommandController extends Controller
 
         $results = $checkcommand->execute();
 
-	$content = new ObjectTable($results, (new CheckcommandRenderer())->setBaseFilter($filter));
-
+        $content = new ObjectTable($results, (new CheckcommandRenderer())->setBaseFilter($filter));
         $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
@@ -108,17 +100,16 @@ class CheckcommandController extends Controller
     public function completeAction()
     {
         $suggestions = new ObjectSuggestions();
-        $suggestions->setModel(Servicegroup::class);
+        $suggestions->setModel(Checkcommand::class);
         $suggestions->forRequest(ServerRequest::fromGlobals());
         $this->getDocument()->add($suggestions);
     }
 
     public function searchEditorAction()
     {
-        $editor = $this->createSearchEditor(ServicegroupSummary::on($this->getDb()), [
+        $editor = $this->createSearchEditor(CheckcommandSummary::on($this->getDb()), [
             LimitControl::DEFAULT_LIMIT_PARAM,
-            SortControl::DEFAULT_SORT_PARAM,
-            ViewModeSwitcher::DEFAULT_VIEW_MODE_PARAM
+            SortControl::DEFAULT_SORT_PARAM
         ]);
 
         $this->getDocument()->add($editor);

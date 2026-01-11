@@ -11,12 +11,8 @@ use Icinga\Module\Icingadb\View\ServicegroupprojectRenderer;
 use Icinga\Module\Icingadb\Web\Control\SearchBar\ObjectSuggestions;
 use Icinga\Module\Icingadb\Web\Controller;
 use Icinga\Module\Icingadb\Widget\ItemTable\ObjectTable;
-use Icinga\Module\Icingadb\Widget\ShowMore;
-use ipl\Html\Attributes;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
-use ipl\Web\Url;
-use ipl\Web\Widget\ItemList;
 
 class ServicegroupsprojectController extends Controller
 {
@@ -34,43 +30,81 @@ class ServicegroupsprojectController extends Controller
 
         $db = $this->getDb();
 
-        $servicegroupsproject = ServicegroupprojectSummary::on($db);
+        $servicegroups = ServicegroupprojectSummary::on($db);
 
-        $this->handleSearchRequest($servicegroupsproject);
+        $this->handleSearchRequest($servicegroups);
 
         $limitControl = $this->createLimitControl();
-        $paginationControl = $this->createPaginationControl($servicegroupsproject);
+        $paginationControl = $this->createPaginationControl($servicegroups);
 
         $sortControl = $this->createSortControl(
-            $servicegroupsproject,
+            $servicegroups,
             [
                 'display_name'                         => t('Name'),
                 'services_severity desc, display_name' => t('Severity'),
                 'services_total desc'                  => t('Total Services')
             ],
-            ['services_severity DESC', 'display_name']
+            ['services_severity desc', 'display_name']
         );
 
-        $filter = $this->getFilter();
+        $searchBar = $this->createSearchBar($servicegroups, [
+            $limitControl->getLimitParam(),
+            $sortControl->getSortParam(),
+        ]);
 
-        $this->filter($servicegroupsproject, $filter);
+        if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
+            if ($searchBar->hasBeenSubmitted()) {
+                $filter = $this->getFilter();
+            } else {
+                $this->addControl($searchBar);
+                $this->sendMultipartUpdate();
+                return;
+            }
+        } else {
+            $filter = $searchBar->getFilter();
+        }
 
-        $servicegroupsproject->peekAhead($compact);
+        $this->filter($servicegroups, $filter);
 
-        yield $this->export($servicegroupsproject);
+        $servicegroups->peekAhead($compact);
+
+        yield $this->export($servicegroups);
 
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
         $this->addControl($limitControl);
+        $this->addControl($searchBar);
 
-        $results = $servicegroupsproject->execute();
+        $results = $servicegroups->execute();
 
         $content = new ObjectTable($results, (new ServicegroupprojectRenderer())->setBaseFilter($filter));
         $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
 
+        if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
+            $this->sendMultipartUpdate();
+        }
+
         $this->setAutorefreshInterval(30);
     }
 
+    public function completeAction()
+    {
+        $suggestions = new ObjectSuggestions();
+        $suggestions->setModel(Servicegroup::class);
+        $suggestions->forRequest(ServerRequest::fromGlobals());
+        $this->getDocument()->add($suggestions);
+    }
+
+    public function searchEditorAction()
+    {
+        $editor = $this->createSearchEditor(ServicegroupprojectSummary::on($this->getDb()), [
+            LimitControl::DEFAULT_LIMIT_PARAM,
+            SortControl::DEFAULT_SORT_PARAM
+        ]);
+
+        $this->getDocument()->add($editor);
+        $this->setTitle(t('Adjust Filter'));
+    }
 }

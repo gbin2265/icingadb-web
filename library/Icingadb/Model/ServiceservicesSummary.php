@@ -13,6 +13,22 @@ use ipl\Sql\Connection;
 use ipl\Sql\Expression;
 use ipl\Sql\Select;
 
+/**
+ * @property string $id
+ * @property string $display_name
+ * @property string $name_ci
+ * @property string $name
+ * @property int $services_critical_handled
+ * @property int $services_critical_unhandled
+ * @property int $services_ok
+ * @property int $services_pending
+ * @property int $services_total
+ * @property int $services_unknown_handled
+ * @property int $services_unknown_unhandled
+ * @property int $services_warning_handled
+ * @property int $services_warning_unhandled
+ * @property int $services_severity
+ */
 class ServiceservicesSummary extends UnionModel
 {
     public static function on(Connection $db)
@@ -55,9 +71,9 @@ class ServiceservicesSummary extends UnionModel
     public function getColumns()
     {
         return [
-            'display_name'                => 'service_name',
+            'name'                        => 'service_name',
             'name_ci'                     => 'service_name_ci',
-            'name'                        => 'service_display_name',
+            'display_name'                => 'service_display_name',
             'services_critical_handled'   => new Expression(
                 'SUM(CASE WHEN service_state = 2'
                 . ' AND (service_handled = \'y\' OR service_reachable = \'n\') THEN 1 ELSE 0 END)'
@@ -97,12 +113,12 @@ class ServiceservicesSummary extends UnionModel
 
     public function getSearchColumns()
     {
-        return ['name'];
+        return ['name', 'display_name'];
     }
 
     public function getDefaultSort()
     {
-        return 'name';
+        return 'display_name';
     }
 
     public function getUnions()
@@ -117,11 +133,11 @@ class ServiceservicesSummary extends UnionModel
                     'service_name'         => 'service.name',
                     'service_name_ci'      => 'service.name_ci',
                     'service_display_name' => 'service.name',
-                    'service_id'                => 'service.id',
-                    'service_state'             => 'state.soft_state',
-                    'service_handled'           => 'state.is_handled',
-                    'service_reachable'         => 'state.is_reachable',
-                    'service_severity'          => 'state.severity'
+                    'service_id'           => 'service.id',
+                    'service_state'        => 'state.soft_state',
+                    'service_handled'      => 'state.is_handled',
+                    'service_reachable'    => 'state.is_reachable',
+                    'service_severity'     => 'state.severity'
                 ]
             ]
         ];
@@ -135,19 +151,16 @@ class ServiceservicesSummary extends UnionModel
             'id'
         ]));
 
-        // This is because there is no better way
-        (new Servicegroup())->createBehaviors($behaviors);
+        (new Service())->createBehaviors($behaviors);
     }
 
     public function createRelations(Relations $relations)
     {
-        // This is because there is no better way
-        (new Servicegroup())->createRelations($relations);
+        (new Service())->createRelations($relations);
     }
 
     public function getColumnDefinitions()
     {
-        // This is because there is no better way
-        return (new Servicegroup())->getColumnDefinitions();
+        return (new Service())->getColumnDefinitions();
     }
 }

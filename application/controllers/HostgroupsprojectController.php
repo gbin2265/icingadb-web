@@ -6,15 +6,13 @@ namespace Icinga\Module\Icingadb\Controllers;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use Icinga\Module\Icingadb\Model\Hostgroup;
-use Icinga\Module\Icingadb\Model\Hostgroupprojectsummary;
+use Icinga\Module\Icingadb\Model\HostgroupprojectSummary;
 use Icinga\Module\Icingadb\View\HostgroupprojectRenderer;
 use Icinga\Module\Icingadb\Web\Control\SearchBar\ObjectSuggestions;
 use Icinga\Module\Icingadb\Web\Controller;
 use Icinga\Module\Icingadb\Widget\ItemTable\ObjectTable;
-use Icinga\Module\Icingadb\Widget\ShowMore;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
-use ipl\Web\Url;
 
 class HostgroupsprojectController extends Controller
 {
@@ -32,44 +30,82 @@ class HostgroupsprojectController extends Controller
 
         $db = $this->getDb();
 
-        $hostgroupsproject = Hostgroupprojectsummary::on($db);
+        $hostgroups = HostgroupprojectSummary::on($db);
 
-        $this->handleSearchRequest($hostgroupsproject);
+        $this->handleSearchRequest($hostgroups);
 
         $limitControl = $this->createLimitControl();
-        $paginationControl = $this->createPaginationControl($hostgroupsproject);
+        $paginationControl = $this->createPaginationControl($hostgroups);
 
         $sortControl = $this->createSortControl(
-            $hostgroupsproject,
+            $hostgroups,
             [
                 'display_name'                      => t('Name'),
                 'hosts_severity desc, display_name' => t('Severity'),
                 'hosts_total desc'                  => t('Total Hosts'),
+                'services_total desc'               => t('Total Services')
             ],
-            ['hosts_severity DESC', 'display_name']
+            ['hosts_severity desc', 'display_name']
         );
 
-        $filter = $this->getFilter();
+        $searchBar = $this->createSearchBar($hostgroups, [
+            $limitControl->getLimitParam(),
+            $sortControl->getSortParam(),
+        ]);
 
-        $this->filter($hostgroupsproject, $filter);
+        if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
+            if ($searchBar->hasBeenSubmitted()) {
+                $filter = $this->getFilter();
+            } else {
+                $this->addControl($searchBar);
+                $this->sendMultipartUpdate();
+                return;
+            }
+        } else {
+            $filter = $searchBar->getFilter();
+        }
 
-        $hostgroupsproject->peekAhead($compact);
+        $this->filter($hostgroups, $filter);
 
-        yield $this->export($hostgroupsproject);
+        $hostgroups->peekAhead($compact);
+
+        yield $this->export($hostgroups);
 
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
         $this->addControl($limitControl);
+        $this->addControl($searchBar);
 
-        $results = $hostgroupsproject->execute();
+        $results = $hostgroups->execute();
 
-	$content = new ObjectTable($results, (new HostgroupprojectRenderer())->setBaseFilter($filter));
-
+        $content = new ObjectTable($results, (new HostgroupprojectRenderer())->setBaseFilter($filter));
         $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
 
+        if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
+            $this->sendMultipartUpdate();
+        }
+
         $this->setAutorefreshInterval(30);
     }
 
+    public function completeAction()
+    {
+        $suggestions = new ObjectSuggestions();
+        $suggestions->setModel(Hostgroup::class);
+        $suggestions->forRequest(ServerRequest::fromGlobals());
+        $this->getDocument()->add($suggestions);
+    }
+
+    public function searchEditorAction()
+    {
+        $editor = $this->createSearchEditor(HostgroupprojectSummary::on($this->getDb()), [
+            LimitControl::DEFAULT_LIMIT_PARAM,
+            SortControl::DEFAULT_SORT_PARAM
+        ]);
+
+        $this->getDocument()->add($editor);
+        $this->setTitle(t('Adjust Filter'));
+    }
 }

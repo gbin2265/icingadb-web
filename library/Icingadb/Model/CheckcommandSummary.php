@@ -13,6 +13,21 @@ use ipl\Sql\Connection;
 use ipl\Sql\Expression;
 use ipl\Sql\Select;
 
+/**
+ * @property string $id
+ * @property string $display_name
+ * @property string $name
+ * @property int $services_critical_handled
+ * @property int $services_critical_unhandled
+ * @property int $services_ok
+ * @property int $services_pending
+ * @property int $services_total
+ * @property int $services_unknown_handled
+ * @property int $services_unknown_unhandled
+ * @property int $services_warning_handled
+ * @property int $services_warning_unhandled
+ * @property int $services_severity
+ */
 class CheckcommandSummary extends UnionModel
 {
     public static function on(Connection $db)
@@ -96,12 +111,12 @@ class CheckcommandSummary extends UnionModel
 
     public function getSearchColumns()
     {
-        return ['name'];
+        return ['name', 'display_name'];
     }
 
     public function getDefaultSort()
     {
-        return 'name';
+        return 'display_name';
     }
 
     public function getUnions()
@@ -148,21 +163,29 @@ class CheckcommandSummary extends UnionModel
         $behaviors->add(new Binary([
             'id'
         ]));
-
-        // This is because there is no better way
-        (new Servicegroup())->createBehaviors($behaviors);
     }
 
     public function createRelations(Relations $relations)
     {
-        // This is because there is no better way
-        (new Servicegroup())->createRelations($relations);
+        $relations->hasMany('service', Service::class)
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions()
     {
-        // This is because there is no better way
-        return (new Servicegroup())->getColumnDefinitions();
+        return [
+            'name'                        => t('Command Name'),
+            'display_name'                => t('Display Name'),
+            'services_critical_handled'   => t('Services Critical Handled'),
+            'services_critical_unhandled' => t('Services Critical Unhandled'),
+            'services_ok'                 => t('Services Ok'),
+            'services_pending'            => t('Services Pending'),
+            'services_total'              => t('Services Total'),
+            'services_unknown_handled'    => t('Services Unknown Handled'),
+            'services_unknown_unhandled'  => t('Services Unknown Unhandled'),
+            'services_warning_handled'    => t('Services Warning Handled'),
+            'services_warning_unhandled'  => t('Services Warning Unhandled'),
+            'services_severity'           => t('Services Severity')
+        ];
     }
 }
-

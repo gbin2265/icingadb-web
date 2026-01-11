@@ -5,7 +5,7 @@
 namespace Icinga\Module\Icingadb\View;
 
 use Icinga\Module\Icingadb\Common\Links;
-use Icinga\Module\Icingadb\Model\Hostgroupprojectsummary;
+use Icinga\Module\Icingadb\Model\HostgroupprojectSummary;
 use Icinga\Module\Icingadb\Widget\Detail\HostStatistics;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceStatistics;
 use ipl\Html\Attributes;
@@ -18,7 +18,7 @@ use ipl\Stdlib\Filter;
 use ipl\Web\Widget\ItemTable\ItemTableRenderer;
 use ipl\Web\Widget\Link;
 
-/** @implements ItemTableRenderer<Hostgroupprojectsummary> */
+/** @implements ItemTableRenderer<HostgroupprojectSummary> */
 class HostgroupprojectRenderer implements ItemTableRenderer
 {
     use Translation;
@@ -69,7 +69,6 @@ class HostgroupprojectRenderer implements ItemTableRenderer
 
     public function assembleExtendedInfo($item, HtmlDocument $info, string $layout): void
     {
-        // assembleExtendedInfo() is only called when $layout == header
         $info->addHtml(...$this->createStatistics($item));
     }
 
@@ -79,7 +78,7 @@ class HostgroupprojectRenderer implements ItemTableRenderer
 
     public function assemble($item, string $name, HtmlDocument $element, string $layout): bool
     {
-        return false; // no custom sections
+        return false;
     }
 
     public function assembleColumns($item, HtmlDocument $columns, string $layout): void
@@ -97,15 +96,14 @@ class HostgroupprojectRenderer implements ItemTableRenderer
     /**
      * Create statistics for the given item
      *
-     * @param Hostgroupprojectsummary $item
+     * @param HostgroupprojectSummary $item
      *
      * @return array{0: HostStatistics, 1: ServiceStatistics}
      */
-    protected function createStatistics(Hostgroupprojectsummary $item): array
+    protected function createStatistics(HostgroupprojectSummary $item): array
     {
         $hostStats = (new HostStatistics($item))
             ->setBaseFilter(Filter::equal('hostgroup.name', $item->name));
-
 
         $serviceStats = (new ServiceStatistics($item))
             ->setBaseFilter(Filter::equal('hostgroup.name', $item->name));
