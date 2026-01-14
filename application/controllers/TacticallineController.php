@@ -12,10 +12,17 @@ use Icinga\Module\Icingadb\Web\Controller;
 use Icinga\Module\Icingadb\Widget\ItemTable\ObjectTable;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
-use ipl\Web\Widget\ViewModeSwitcher;
+use ipl\Web\Control\ViewModeSwitcher;
 
 class TacticallineController extends Controller
 {
+    public function init()
+    {
+        parent::init();
+
+        $this->assertRouteAccess();
+    }
+
     public function indexAction()
     {
         $this->addTitleTab(t('Tactical Line'));
@@ -59,4 +66,3 @@ class TacticallineController extends Controller
         $this->setTitle(t('Adjust Filter'));
     }
 }
-

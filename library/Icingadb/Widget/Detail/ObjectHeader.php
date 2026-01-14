@@ -29,7 +29,9 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Orm\Model;
 use ipl\Web\Layout\HeaderItemLayout;
 use ipl\Web\Layout\ItemLayout;
-use Icinga\Module\Icingadb\Model\Hostgroupprojectsummary;
+
+/* GeBi - Custom Summary Models and Renderers */
+use Icinga\Module\Icingadb\Model\HostgroupprojectSummary;
 use Icinga\Module\Icingadb\Model\ServicegroupprojectSummary;
 use Icinga\Module\Icingadb\Model\CheckcommandSummary;
 use Icinga\Module\Icingadb\View\HostgroupprojectRenderer;
@@ -111,8 +113,8 @@ class ObjectHeader extends BaseHtmlElement
                 $renderer = new ServicegroupRenderer();
 
                 break;
-            #GeBi
-            case $this->object instanceof Hostgroupprojectsummary:
+            /* GeBi - Custom Summary Models */
+            case $this->object instanceof HostgroupprojectSummary:
                 $renderer = new HostgroupprojectRenderer();
 
                 break;

@@ -12,12 +12,14 @@ use ipl\Html\ValidHtml;
 use ipl\Stdlib\Filter;
 use ipl\Web\Url;
 use ipl\Web\Widget\ItemTable;
-use Icinga\Module\Icingadb\Model\Hostgroupprojectsummary;
-use Icinga\Module\Icingadb\Model\Servicegroupprojectsummary;
-use Icinga\Module\Icingadb\Model\Checkcommandsummary;
-use Icinga\Module\Icingadb\Model\Hosthostsummary;
-use Icinga\Module\Icingadb\Model\Hostservicessummary;
-use Icinga\Module\Icingadb\Model\Serviceservicessummary;
+
+/* GeBi - Custom Summary Models */
+use Icinga\Module\Icingadb\Model\HostgroupprojectSummary;
+use Icinga\Module\Icingadb\Model\ServicegroupprojectSummary;
+use Icinga\Module\Icingadb\Model\CheckcommandSummary;
+use Icinga\Module\Icingadb\Model\HosthostSummary;
+use Icinga\Module\Icingadb\Model\HostservicesSummary;
+use Icinga\Module\Icingadb\Model\ServiceservicesSummary;
 use Icinga\Module\Icingadb\Model\TacticallineSummary;
 
 /**
@@ -65,8 +67,8 @@ class ObjectTable extends ItemTable
                 $this->setDetailUrl(Url::fromPath('icingadb/servicegroup'));
 
                 break;
-            # GeBi
-            case $data instanceof Hostgroupprojectsummary:
+            /* GeBi - Custom Summary Models */
+            case $data instanceof HostgroupprojectSummary:
                 $this->setDetailUrl(Url::fromPath('icingadb/hostgroupsproject'));
 
                 break;
@@ -79,22 +81,23 @@ class ObjectTable extends ItemTable
 
                 break;
             case $data instanceof HosthostSummary:
-		$this->setDetailUrl(Url::fromPath('icingadb/hosthost'));
+                $this->setDetailUrl(Url::fromPath('icingadb/hosthost'));
+
+                break;
+            case $data instanceof HostservicesSummary:
+                $this->setDetailUrl(Url::fromPath('icingadb/hostservices'));
 
                 break;
             case $data instanceof ServiceservicesSummary:
                 $this->setDetailUrl(Url::fromPath('icingadb/serviceservices'));
 
                 break;
-            case $data instanceof HostservicesSummary:
-                $this->setDetailUrl(Url::fromPath('icingadb/hostservices'));
-
-		break;
             case $data instanceof TacticallineSummary:
-		    $this->setDetailUrl(Url::fromPath('icingadb/tacticalline'));
-		    $this->addAttributes(['class' => 'tacticalline-table']);
+                $this->setDetailUrl(Url::fromPath('icingadb/tacticalline'));
+                $this->addAttributes(['class' => 'tacticalline-table']);
 
-		break;
+                // TacticallineSummary has no name - it's a global aggregate
+                return $item;
             default:
                 throw new NotImplementedError('Not implemented');
         }

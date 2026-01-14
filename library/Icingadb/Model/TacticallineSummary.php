@@ -4,8 +4,10 @@
 
 namespace Icinga\Module\Icingadb\Model;
 
+use Icinga\Module\Icingadb\Common\Auth;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
+use ipl\Orm\Query;
 use ipl\Orm\Relations;
 use ipl\Orm\UnionModel;
 use ipl\Sql\Connection;
@@ -17,6 +19,17 @@ class TacticallineSummary extends UnionModel
     public static function on(Connection $db)
     {
         $q = parent::on($db);
+
+        $q->on(
+            Query::ON_SELECT_ASSEMBLED,
+            function () use ($q) {
+                $auth = new class () {
+                    use Auth;
+                };
+
+                $auth->assertColumnRestrictions($q->getFilter());
+            }
+        );
 
         $q->on($q::ON_SELECT_ASSEMBLED, function (Select $select) use ($q) {
             $model = $q->getModel();
@@ -126,7 +139,6 @@ class TacticallineSummary extends UnionModel
             [
                 Service::class,
                 [
-                    'environment',
                     'state'
                 ],
                 [
@@ -149,18 +161,15 @@ class TacticallineSummary extends UnionModel
         $behaviors->add(new Binary([
             'id'
         ]));
-
-        (new Environment())->createBehaviors($behaviors);
     }
 
     public function createRelations(Relations $relations)
     {
-        (new Environment())->createRelations($relations);
+        // No relations needed for tactical line summary
     }
 
     public function getColumnDefinitions()
     {
-        return (new Environment())->getColumnDefinitions();
+        return [];
     }
 }
-

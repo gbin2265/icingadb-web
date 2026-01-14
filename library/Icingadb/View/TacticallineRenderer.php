@@ -83,4 +83,3 @@ class TacticallineRenderer implements ItemTableRenderer
         return [$hostStats, $serviceStats];
     }
 }
-

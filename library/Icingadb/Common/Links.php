@@ -147,17 +147,17 @@ abstract class Links
         return Url::fromPath('icingadb/host', ['name' => $host->name]);
     }
 
-    public static function ServiceCommands($command): Url
+    public static function serviceCommands($command): Url
     {
         return Url::fromPath('icingadb/services', ['checkcommand.name' => $command->name]);
     }
 
-    public static function Serviceservices($service): Url
+    public static function serviceServices($service): Url
     {
         return Url::fromPath('icingadb/services', ['service.name' => $service->name]);
     }
     
-    public static function Hostservices($host): Url
+    public static function hostServices($host): Url
     {
         return Url::fromPath('icingadb/services', ['host.name' => $host->name]);
     }
