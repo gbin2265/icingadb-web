@@ -43,7 +43,7 @@ class CheckcommandRenderer implements ItemTableRenderer
         } else {
             $link = new Link(
                 $item->display_name,
-                Links::ServiceCommands($item),
+                Links::serviceCommands($item),
                 [
                     'class' => 'subject',
                     'title' => sprintf(

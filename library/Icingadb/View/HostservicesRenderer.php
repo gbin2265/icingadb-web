@@ -43,7 +43,7 @@ class HostservicesRenderer implements ItemTableRenderer
         } else {
             $link = new Link(
                 $item->display_name,
-                Links::Hostservices($item),
+                Links::hostServices($item),
                 [
                     'class' => 'subject',
                     'title' => sprintf(

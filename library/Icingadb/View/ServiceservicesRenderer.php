@@ -43,7 +43,7 @@ class ServiceservicesRenderer implements ItemTableRenderer
         } else {
             $link = new Link(
                 $item->display_name,
-                Links::Serviceservices($item),
+                Links::serviceServices($item),
                 [
                     'class' => 'subject',
                     'title' => sprintf(
