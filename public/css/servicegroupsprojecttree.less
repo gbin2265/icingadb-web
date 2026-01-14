@@ -1,0 +1,100 @@
+/* Servicegroups Project Tree Styling */
+
+.servicegroupsprojecttree-table {
+    width: 100%;
+}
+
+.servicegroup-tree-item {
+    margin-bottom: 0.25em;
+}
+
+.servicegroup-tree-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+    border: 1px solid #666;
+    border-radius: 4px;
+}
+
+.servicegroup-tree-name {
+    display: flex;
+    flex-direction: column;
+}
+
+.servicegroup-tree-name .subject {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.servicegroup-tree-caption {
+    font-size: 0.85em;
+    color: #666;
+}
+
+.servicegroup-tree-stats {
+    display: flex;
+    gap: 0.25em;
+}
+
+.servicegroup-tree-content {
+    padding: 0;
+}
+
+/* Service container - fixed indent */
+.servicegroupsprojecttree-table .tree-service-container {
+    margin-left: 2em;
+}
+
+/* Host container - fixed indent (underneath services) */
+.servicegroupsprojecttree-table .tree-host-container {
+    margin-left: 4em;
+}
+
+/* Service tree header (like servicegroup header but for individual service) */
+.service-tree-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+    margin: 0;
+}
+
+.service-tree-name {
+    display: flex;
+    flex-direction: column;
+}
+
+.service-tree-name .subject {
+    font-size: 1em;
+    font-weight: 600;
+}
+
+.service-tree-stats {
+    display: flex;
+    gap: 0.25em;
+    margin-left: auto;
+}
+
+/* Host item styling */
+.host-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
+    padding: 0.1em 0;
+}
+
+.host-item .subject {
+    font-weight: 500;
+}
+
+/* Dark mode support */
+.dark-mode .servicegroup-tree-header {
+    border-color: #999;
+}
+
+.dark-mode .servicegroup-tree-caption {
+    color: #999;
+}

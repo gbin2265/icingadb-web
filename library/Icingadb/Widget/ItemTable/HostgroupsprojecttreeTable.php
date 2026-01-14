@@ -129,6 +129,7 @@ class HostgroupsprojecttreeTable extends BaseHtmlElement
             Links::hostgroup($item),
             [
                 'class' => 'subject',
+                'data-base-target' => '_main',
                 'title' => sprintf(
                     $this->translate('List all hosts in the group "%s"'),
                     $item->display_name
@@ -151,7 +152,10 @@ class HostgroupsprojecttreeTable extends BaseHtmlElement
         $header->addHtml($nameContainer);
 
         // Add statistics
-        $statsContainer = new HtmlElement('div', Attributes::create(['class' => 'hostgroup-tree-stats']));
+        $statsContainer = new HtmlElement('div', Attributes::create([
+            'class' => 'hostgroup-tree-stats',
+            'data-base-target' => '_next'
+        ]));
 
         $hostStats = (new HostStatistics($item))
             ->setBaseFilter(Filter::equal('hostgroup.name', $item->name));

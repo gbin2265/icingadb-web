@@ -5,10 +5,7 @@
 }
 
 .hostgroup-tree-item {
-    margin-bottom: 1em;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.02);
+    margin-bottom: 0.25em;
 }
 
 .hostgroup-tree-header {
@@ -16,9 +13,9 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75em 1em;
-    background-color: rgba(0, 0, 0, 0.05);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0;
+    border: 1px solid #666;
+    border-radius: 4px;
 }
 
 .hostgroup-tree-name {
@@ -38,7 +35,7 @@
 
 .hostgroup-tree-stats {
     display: flex;
-    gap: 1em;
+    gap: 0.25em;
 }
 
 .hostgroup-tree-content {
@@ -47,32 +44,62 @@
 
 /* Host container - fixed indent */
 .tree-host-container {
-    margin-left: 4em;
-    margin-right: 1em;
+    margin-left: 2em;
 }
 
-/* Remove extra margins from ObjectList inside tree containers */
-.tree-host-container .object-list,
-.tree-service-container .object-list {
+/* Remove extra margins and borders from ObjectList inside tree containers */
+.hostgroupsprojecttree-table .object-list {
     margin: 0;
     padding: 0;
+    border: none;
+}
+
+.hostgroupsprojecttree-table .object-list .list-item {
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+.hostgroupsprojecttree-table .object-list li.list-item {
+    border: none !important;
+    border-bottom: none !important;
+    border-top: none !important;
+    box-shadow: none !important;
+}
+
+.hostgroupsprojecttree-table li.list-item.service {
+    border: none !important;
+    border-bottom: none !important;
+}
+
+.hostgroupsprojecttree-table .tree-service-container li {
+    border: none !important;
+    border-bottom: none !important;
+}
+
+.hostgroupsprojecttree-table .tree-host-container li {
+    border: none !important;
+    border-bottom: none !important;
+}
+
+.hostgroupsprojecttree-table .list-item .main,
+.hostgroupsprojecttree-table .list-item header,
+.hostgroupsprojecttree-table .list-item .visual,
+.hostgroupsprojecttree-table .list-item .title,
+.hostgroupsprojecttree-table .list-item .caption,
+.hostgroupsprojecttree-table .list-item .extended-info {
+    border: none !important;
+    border-bottom: none !important;
 }
 
 /* Service container - fixed indent */
 .tree-service-container {
-    margin-left: 6em;
-    margin-right: 1em;
+    margin-left: 4em;
 }
 
 /* Dark mode support */
-.dark-mode .hostgroup-tree-item {
-    border-color: rgba(255, 255, 255, 0.1);
-    background-color: rgba(255, 255, 255, 0.02);
-}
-
 .dark-mode .hostgroup-tree-header {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-bottom-color: rgba(255, 255, 255, 0.1);
+    border-color: #999;
 }
 
 .dark-mode .hostgroup-tree-caption {
