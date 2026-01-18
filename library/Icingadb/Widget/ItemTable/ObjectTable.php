@@ -21,6 +21,7 @@ use Icinga\Module\Icingadb\Model\HosthostSummary;
 use Icinga\Module\Icingadb\Model\HostservicesSummary;
 use Icinga\Module\Icingadb\Model\ServiceservicesSummary;
 use Icinga\Module\Icingadb\Model\TacticallineSummary;
+use Icinga\Module\Icingadb\Model\HostgroupsprojecttacticalSummary;
 
 /**
  * ObjectTable
@@ -98,6 +99,10 @@ class ObjectTable extends ItemTable
 
                 // TacticallineSummary has no name - it's a global aggregate
                 return $item;
+            case $data instanceof HostgroupsprojecttacticalSummary:
+                $this->setDetailUrl(Url::fromPath('icingadb/hostgroupsprojecttactical'));
+
+                break;
             default:
                 throw new NotImplementedError('Not implemented');
         }

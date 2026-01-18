@@ -7,6 +7,7 @@ namespace Icinga\Module\Icingadb\Widget\ItemTable;
 use Icinga\Module\Icingadb\Common\Links;
 use Icinga\Module\Icingadb\Model\Service;
 use Icinga\Module\Icingadb\Model\ServicegroupsprojecttreeSummary;
+use Icinga\Module\Icingadb\Model\ServicestateSummary;
 use Icinga\Module\Icingadb\Redis\VolatileStateResults;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceStatistics;
 use ipl\Html\Attributes;
@@ -258,34 +259,56 @@ class ServicegroupsprojecttreeTable extends BaseHtmlElement
 
         $item->addHtml($nameContainer);
 
-        // Add statistics using ServiceStatistics widget
+        // Add statistics using ServiceStatistics widget with correct data
         $statsContainer = new HtmlElement('div', Attributes::create([
             'class' => 'service-tree-stats',
             'data-base-target' => '_next'
         ]));
 
-        // Create object with properties expected by ServiceStatistics
-        $statsObject = (object) [
-            'services_critical_unhandled' => $serviceData['services_critical_unhandled'],
-            'services_critical_handled'   => 0,
-            'services_warning_unhandled'  => $serviceData['services_warning_unhandled'],
-            'services_warning_handled'    => 0,
-            'services_unknown_unhandled'  => $serviceData['services_unknown_unhandled'],
-            'services_unknown_handled'    => 0,
-            'services_ok'                 => $serviceData['services_ok'],
-            'services_pending'            => 0,
-            'services_total'              => $serviceData['services_total']
-        ];
+        // Get correct stats for this service name in this servicegroup
+        $serviceStats = $this->getServiceStatsByName($servicegroupName, $serviceData['name']);
+        
+        if ($serviceStats !== null) {
+            $statsWidget = (new ServiceStatistics($serviceStats))
+                ->setBaseFilter($serviceFilter);
 
-        $serviceStats = (new ServiceStatistics($statsObject))
-            ->setBaseFilter($serviceFilter);
-
-        $statsContainer->addHtml($serviceStats);
-        $item->addHtml($statsContainer);
+            $statsContainer->addHtml($statsWidget);
+            $item->addHtml($statsContainer);
+        }
 
         $container->addHtml($item);
 
         return $container;
+    }
+
+    /**
+     * Get service statistics for a specific service name in a servicegroup
+     *
+     * @param string $servicegroupName
+     * @param string $serviceName
+     *
+     * @return object|null
+     */
+    protected function getServiceStatsByName(string $servicegroupName, string $serviceName): ?object
+    {
+        $query = ServicestateSummary::on($this->db);
+        
+        $query->filter(Filter::all(
+            Filter::equal('servicegroup.name', $servicegroupName),
+            Filter::equal('service.name', $serviceName)
+        ));
+
+        if ($this->baseFilter !== null) {
+            $query->filter($this->baseFilter);
+        }
+
+        $result = $query->first();
+
+        if ($result === null || $result->services_total === null || $result->services_total === 0) {
+            return null;
+        }
+
+        return $result;
     }
 
     /**

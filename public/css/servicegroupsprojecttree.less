@@ -1,100 +1,97 @@
-/* Servicegroups Project Tree Styling */
+/* Servicegroup Project Tree Styles */
 
 .servicegroupsprojecttree-table {
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+
+  /* Service container (2nd level) */
+  .tree-service-container {
+    margin-left: 2em;
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+  }
+
+  /* Host container (3rd level) */
+  .tree-host-container {
+    margin-left: 4em;
+    margin-top: 0.125em;
+    margin-bottom: 0.125em;
+  }
 }
 
 .servicegroup-tree-item {
-    margin-bottom: 0.25em;
+  border: 1px solid @gray-light;
+  border-radius: .25em;
 }
 
 .servicegroup-tree-header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0;
-    border: 1px solid #666;
-    border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5em;
+  background: @gray-lighter;
+  border-bottom: 1px solid @gray-light;
 }
 
 .servicegroup-tree-name {
-    display: flex;
-    flex-direction: column;
-}
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
 
-.servicegroup-tree-name .subject {
-    font-size: 1.1em;
+  .subject {
     font-weight: bold;
+    font-size: 1.1em;
+  }
 }
 
 .servicegroup-tree-caption {
-    font-size: 0.85em;
-    color: #666;
+  font-size: 0.85em;
+  color: @gray;
 }
 
 .servicegroup-tree-stats {
-    display: flex;
-    gap: 0.25em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
 }
 
 .servicegroup-tree-content {
-    padding: 0;
+  padding: 0.25em;
 }
 
-/* Service container - fixed indent */
-.servicegroupsprojecttree-table .tree-service-container {
-    margin-left: 2em;
-}
-
-/* Host container - fixed indent (underneath services) */
-.servicegroupsprojecttree-table .tree-host-container {
-    margin-left: 4em;
-}
-
-/* Service tree header (like servicegroup header but for individual service) */
+/* Service header line - name left, stats right */
 .service-tree-header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0;
-    margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+  padding: 0.25em;
+  background: fade(@gray-lighter, 50%);
+  border-radius: .25em;
+
+  .subject {
+    font-weight: bold;
+  }
 }
 
 .service-tree-name {
-    display: flex;
-    flex-direction: column;
-}
-
-.service-tree-name .subject {
-    font-size: 1em;
-    font-weight: 600;
+  flex: 1;
+  min-width: 0;
 }
 
 .service-tree-stats {
-    display: flex;
-    gap: 0.25em;
-    margin-left: auto;
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-/* Host item styling */
 .host-item {
-    display: flex;
-    align-items: center;
-    gap: 0.3em;
-    padding: 0.1em 0;
-}
-
-.host-item .subject {
-    font-weight: 500;
-}
-
-/* Dark mode support */
-.dark-mode .servicegroup-tree-header {
-    border-color: #999;
-}
-
-.dark-mode .servicegroup-tree-caption {
-    color: #999;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.125em 0.25em;
 }

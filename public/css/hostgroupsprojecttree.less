@@ -1,107 +1,83 @@
-/* Hostgroups Project Tree Styling */
+/* Hostgroup Project Tree Styles */
 
 .hostgroupsprojecttree-table {
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+
+  /* Host container (2nd level) - small indent */
+  .tree-host-container {
+    margin-left: 2em;
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+
+    .object-item-list {
+      margin: 0;
+      padding: 0;
+
+      .list-item {
+        margin: 0;
+        padding: 0.25em;
+      }
+    }
+  }
+
+  /* Service container (3rd level) - larger indent under host */
+  .tree-service-container {
+    margin-left: 4em;
+    margin-top: 0.125em;
+    margin-bottom: 0.25em;
+
+    .object-item-list {
+      margin: 0;
+      padding: 0;
+
+      .list-item {
+        margin: 0;
+        padding: 0.125em 0.25em;
+      }
+    }
+  }
 }
 
 .hostgroup-tree-item {
-    margin-bottom: 0.25em;
+  border: 1px solid @gray-light;
+  border-radius: .25em;
 }
 
 .hostgroup-tree-header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0;
-    border: 1px solid #666;
-    border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5em;
+  background: @gray-lighter;
+  border-bottom: 1px solid @gray-light;
 }
 
 .hostgroup-tree-name {
-    display: flex;
-    flex-direction: column;
-}
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
 
-.hostgroup-tree-name .subject {
-    font-size: 1.1em;
+  .subject {
     font-weight: bold;
+    font-size: 1.1em;
+  }
 }
 
 .hostgroup-tree-caption {
-    font-size: 0.85em;
-    color: #666;
+  font-size: 0.85em;
+  color: @gray;
 }
 
 .hostgroup-tree-stats {
-    display: flex;
-    gap: 0.25em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
 }
 
 .hostgroup-tree-content {
-    padding: 0;
-}
-
-/* Host container - fixed indent */
-.tree-host-container {
-    margin-left: 2em;
-}
-
-/* Remove extra margins and borders from ObjectList inside tree containers */
-.hostgroupsprojecttree-table .object-list {
-    margin: 0;
-    padding: 0;
-    border: none;
-}
-
-.hostgroupsprojecttree-table .object-list .list-item {
-    border: none !important;
-    border-bottom: none !important;
-    box-shadow: none !important;
-}
-
-.hostgroupsprojecttree-table .object-list li.list-item {
-    border: none !important;
-    border-bottom: none !important;
-    border-top: none !important;
-    box-shadow: none !important;
-}
-
-.hostgroupsprojecttree-table li.list-item.service {
-    border: none !important;
-    border-bottom: none !important;
-}
-
-.hostgroupsprojecttree-table .tree-service-container li {
-    border: none !important;
-    border-bottom: none !important;
-}
-
-.hostgroupsprojecttree-table .tree-host-container li {
-    border: none !important;
-    border-bottom: none !important;
-}
-
-.hostgroupsprojecttree-table .list-item .main,
-.hostgroupsprojecttree-table .list-item header,
-.hostgroupsprojecttree-table .list-item .visual,
-.hostgroupsprojecttree-table .list-item .title,
-.hostgroupsprojecttree-table .list-item .caption,
-.hostgroupsprojecttree-table .list-item .extended-info {
-    border: none !important;
-    border-bottom: none !important;
-}
-
-/* Service container - fixed indent */
-.tree-service-container {
-    margin-left: 4em;
-}
-
-/* Dark mode support */
-.dark-mode .hostgroup-tree-header {
-    border-color: #999;
-}
-
-.dark-mode .hostgroup-tree-caption {
-    color: #999;
+  padding: 0.25em;
 }
