@@ -37,6 +37,8 @@ use ipl\Web\Control\SortControl;
 use ipl\Web\Url;
 use ipl\Web\Widget\Tabs;
 use Generator;
+
+/* GeBi - Custom MetaInfo Links Widget */
 use Icinga\Module\Icingadb\Widget\Detail\HostMetaInfoLinks;
 
 class HostController extends Controller
@@ -84,8 +86,9 @@ class HostController extends Controller
             $this->controls->addAttributes(['class' => 'overdue']);
         }
 
-	$this->addControl(new HostMetaInfoLinks($this->host));
-	$this->addControl(new HostMetaInfo($this->host));
+        /* GeBi - Custom MetaInfo Links Widget */
+        $this->addControl(new HostMetaInfoLinks($this->host));
+        $this->addControl(new HostMetaInfo($this->host));
         $this->addControl(new QuickActions($this->host));
 
         $this->addContent(new HostDetail($this->host, $serviceSummary->first()));

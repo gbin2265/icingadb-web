@@ -35,6 +35,8 @@ use ipl\Web\Control\SortControl;
 use ipl\Web\Url;
 use ipl\Web\Widget\Tabs;
 use Generator;
+
+/* GeBi - Custom MetaInfo Links Widget */
 use Icinga\Module\Icingadb\Widget\Detail\ServiceMetaInfoLinks;
 
 class ServiceController extends Controller
@@ -96,8 +98,9 @@ class ServiceController extends Controller
             $this->controls->addAttributes(['class' => 'overdue']);
         }
 
+        /* GeBi - Custom MetaInfo Links Widget */
         $this->addControl(new ServiceMetaInfoLinks($this->service));
-	$this->addControl(new ServiceMetaInfo($this->service));
+        $this->addControl(new ServiceMetaInfo($this->service));
         $this->addControl(new QuickActions($this->service));
 
         $this->addContent(new ServiceDetail($this->service));
