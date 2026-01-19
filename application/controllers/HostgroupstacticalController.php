@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /* Icinga DB Web | (c) 2025 Icinga GmbH | GPLv2 */
 /* GeBi custom view */
 
@@ -15,30 +17,31 @@ use Icinga\Module\Icingadb\Widget\ItemTable\HostgroupstacticalTable;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
 
+/**
+ * Controller for hostgroup tactical view
+ *
+ * @since 1.3.0 GeBi custom view
+ */
 class HostgroupstacticalController extends Controller
 {
-    public function init()
+    public function init(): void
     {
         parent::init();
 
         $this->assertRouteAccess();
     }
 
-    public function indexAction()
+    public function indexAction(): \Generator
     {
         $this->addTitleTab(t('Host Group Tactical'));
         $compact = $this->view->compact;
 
         $db = $this->getDb();
 
-        // Read and remove checkbox values from URL params BEFORE filter processing
-        // All defaults are OFF - only ON if param exists in URL
-        $hostOkValue = $this->params->shift('checkboxhostok') === 'y';
-        $hostCriticalValue = $this->params->shift('checkboxhostcritical') === 'y';
-        $hostServicesValue = $this->params->shift('checkboxhostservices') === 'y';
-        $criticalValue = $this->params->shift('checkboxservicecritical') === 'y';
-        $warningValue = $this->params->shift('checkboxservicewarning') === 'y';
-        $unknownValue = $this->params->shift('checkboxserviceunknown') === 'y';
+        // Remove checkbox params from URL before filter processing
+        foreach (ServiceStateToggle::CHECKBOX_PARAMS as $param) {
+            $this->params->shift($param);
+        }
 
         $hostgroups = HostgroupstacticalSummary::on($db);
 
@@ -60,22 +63,15 @@ class HostgroupstacticalController extends Controller
             ['hosts_severity desc', 'display_name']
         );
 
-        // Create toggle with values
-        $serviceStateToggle = new ServiceStateToggle(
-            $hostOkValue,
-            $hostCriticalValue,
-            $hostServicesValue,
-            $criticalValue,
-            $warningValue,
-            $unknownValue
-        );
-        $serviceStateToggle->setIdProtector([$this->getRequest(), 'protectId']);
-        $serviceStateToggle->handleRequest(ServerRequest::fromGlobals());
+        $serviceStateToggle = new ServiceStateToggle();
 
-        $searchBar = $this->createSearchBar($hostgroups, [
-            $limitControl->getLimitParam(),
-            $sortControl->getSortParam()
-        ]);
+        $searchBar = $this->createSearchBar($hostgroups, array_merge(
+            [
+                $limitControl->getLimitParam(),
+                $sortControl->getSortParam()
+            ],
+            ServiceStateToggle::CHECKBOX_PARAMS
+        ));
 
         if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
             if ($searchBar->hasBeenSubmitted()) {
@@ -95,7 +91,6 @@ class HostgroupstacticalController extends Controller
 
         yield $this->export($hostgroups);
 
-        // Add controls
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
         $this->addControl($limitControl);
@@ -106,18 +101,9 @@ class HostgroupstacticalController extends Controller
 
         $content = new HostgroupstacticalTable($results, $db);
         $content->setBaseFilter($filter);
-
-        // Set service state filter based on checkboxes
-        $selectedStates = $serviceStateToggle->getSelectedStates();
-        $content->setServiceStateFilter($selectedStates);
-
-        // Set host state filter based on checkboxes
-        $selectedHostStates = $serviceStateToggle->getSelectedHostStates();
-        $content->setHostStateFilter($selectedHostStates);
-
-        // Set whether to filter hosts by services
+        $content->setServiceStateFilter($serviceStateToggle->getSelectedStates());
+        $content->setHostStateFilter($serviceStateToggle->getSelectedHostStates());
         $content->setFilterHostsByServices($serviceStateToggle->isHostServicesChecked());
-
         $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
@@ -129,15 +115,11 @@ class HostgroupstacticalController extends Controller
         $this->setAutorefreshInterval(30);
     }
 
-    public function completeAction()
+    public function completeAction(): void
     {
-        // Remove checkbox params before filter processing
-        $this->params->shift('checkboxhostok');
-        $this->params->shift('checkboxhostcritical');
-        $this->params->shift('checkboxhostservices');
-        $this->params->shift('checkboxservicecritical');
-        $this->params->shift('checkboxservicewarning');
-        $this->params->shift('checkboxserviceunknown');
+        foreach (ServiceStateToggle::CHECKBOX_PARAMS as $param) {
+            $this->params->shift($param);
+        }
 
         $suggestions = new ObjectSuggestions();
         $suggestions->setModel(Hostgroup::class);
@@ -145,15 +127,11 @@ class HostgroupstacticalController extends Controller
         $this->getDocument()->add($suggestions);
     }
 
-    public function searchEditorAction()
+    public function searchEditorAction(): void
     {
-        // Remove checkbox params before filter processing
-        $this->params->shift('checkboxhostok');
-        $this->params->shift('checkboxhostcritical');
-        $this->params->shift('checkboxhostservices');
-        $this->params->shift('checkboxservicecritical');
-        $this->params->shift('checkboxservicewarning');
-        $this->params->shift('checkboxserviceunknown');
+        foreach (ServiceStateToggle::CHECKBOX_PARAMS as $param) {
+            $this->params->shift($param);
+        }
 
         $editor = $this->createSearchEditor(HostgroupstacticalSummary::on($this->getDb()), [
             LimitControl::DEFAULT_LIMIT_PARAM,

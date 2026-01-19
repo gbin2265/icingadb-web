@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /* Icinga DB Web | (c) 2020 Icinga GmbH | GPLv2 */
 
 namespace Icinga\Module\Icingadb\Model;

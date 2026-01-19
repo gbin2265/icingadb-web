@@ -1,6 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /* Icinga DB Web | (c) 2025 Icinga GmbH | GPLv2 */
+/* GeBi custom view */
 
 namespace Icinga\Module\Icingadb\Widget\ItemTable;
 
@@ -10,6 +13,7 @@ use Icinga\Module\Icingadb\Model\HostgroupsprojecttacticalSummary;
 use Icinga\Module\Icingadb\Model\Service;
 use Icinga\Module\Icingadb\Model\ServicestateSummary;
 use Icinga\Module\Icingadb\Redis\VolatileStateResults;
+use Icinga\Module\Icingadb\Web\Control\ServiceStateToggle;
 use Icinga\Module\Icingadb\Widget\Detail\HostStatistics;
 use Icinga\Module\Icingadb\Widget\Detail\ServiceStatistics;
 use Icinga\Module\Icingadb\Widget\ItemList\ObjectList;
@@ -24,6 +28,11 @@ use ipl\Stdlib\Filter;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 
+/**
+ * Hostgroup project tactical table widget
+ *
+ * @since 1.3.0 GeBi custom view
+ */
 class HostgroupsprojecttacticalTable extends BaseHtmlElement
 {
     use Translation;
@@ -33,25 +42,25 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
     protected $defaultAttributes = ['class' => 'hostgroupsprojecttactical-table'];
 
     /** @var ResultSet */
-    protected $data;
+    protected ResultSet $data;
 
     /** @var Connection */
-    protected $db;
+    protected Connection $db;
 
     /** @var Filter\Rule|null */
-    protected $baseFilter;
+    protected ?Filter\Rule $baseFilter = null;
 
     /** @var string|null */
-    protected $emptyStateMessage;
+    protected ?string $emptyStateMessage = null;
 
-    /** @var array|null Filter for service states to show (e.g. [2] for critical only) */
-    protected $serviceStateFilter;
+    /** @var int[]|null Filter for service states (0=OK, 1=WARNING, 2=CRITICAL, 3=UNKNOWN) */
+    protected ?array $serviceStateFilter = null;
 
-    /** @var array|null Filter for host states to show (e.g. [0] for OK, [1] for DOWN) */
-    protected $hostStateFilter;
+    /** @var int[]|null Filter for host states (0=UP, 1=DOWN) */
+    protected ?array $hostStateFilter = null;
 
     /** @var bool Whether to filter hosts by having services to display */
-    protected $filterHostsByServices = false;
+    protected bool $filterHostsByServices = false;
 
     /**
      * Create a new HostgroupsprojecttacticalTable
@@ -92,9 +101,7 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
     /**
      * Set the service state filter
      *
-     * States: 0 = OK, 1 = WARNING, 2 = CRITICAL, 3 = UNKNOWN, 99 = PENDING
-     *
-     * @param array|null $states Array of state integers to show (e.g. [2] for critical only)
+     * @param int[]|null $states Array of state integers
      *
      * @return $this
      */
@@ -108,7 +115,7 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
     /**
      * Get the service state filter
      *
-     * @return array|null
+     * @return int[]|null
      */
     public function getServiceStateFilter(): ?array
     {
@@ -118,10 +125,7 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
     /**
      * Set the host state filter
      *
-     * States: 0 = UP (OK), 1 = DOWN (Critical)
-     * When null, all hosts are shown regardless of state
-     *
-     * @param array|null $states Array of state integers to show
+     * @param int[]|null $states Array of state integers
      *
      * @return $this
      */
@@ -135,7 +139,7 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
     /**
      * Get the host state filter
      *
-     * @return array|null
+     * @return int[]|null
      */
     public function getHostStateFilter(): ?array
     {
@@ -180,7 +184,7 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
         return $this;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $hasItems = false;
 
@@ -285,7 +289,6 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
         $hasHosts = false;
 
         foreach ($hosts as $host) {
-            // Check if host should be shown based on filters
             if (! $this->shouldShowHost($host)) {
                 continue;
             }
@@ -306,34 +309,24 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
      */
     protected function shouldShowHost(Host $host): bool
     {
-        // If no filters are active, show all hosts
         if ($this->hostStateFilter === null && ! $this->filterHostsByServices) {
             return true;
         }
 
-        // Check if host matches the state filter (Ok or Critical)
         $matchesStateFilter = false;
         if ($this->hostStateFilter !== null) {
-            $matchesStateFilter = in_array($host->state->soft_state, $this->hostStateFilter);
+            $matchesStateFilter = in_array($host->state->soft_state, $this->hostStateFilter, true);
         }
 
-        // Check if host has services to display
         $hasServices = false;
-        if ($this->filterHostsByServices) {
-            // Only UP hosts can show services
-            if ($host->state->soft_state === 0) {
-                $services = $this->getServicesForHost($host->name);
-                foreach ($services as $service) {
-                    $hasServices = true;
-                    break;
-                }
+        if ($this->filterHostsByServices && $host->state->soft_state === ServiceStateToggle::HOST_STATE_UP) {
+            $services = $this->getServicesForHost($host->name);
+            foreach ($services as $service) {
+                $hasServices = true;
+                break;
             }
         }
 
-        // Logic:
-        // - If only state filter is active: show hosts matching state
-        // - If only services filter is active: show hosts with services
-        // - If both are active: show hosts matching state OR hosts with services
         if ($this->hostStateFilter !== null && $this->filterHostsByServices) {
             return $matchesStateFilter || $hasServices;
         } elseif ($this->hostStateFilter !== null) {
@@ -346,7 +339,7 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
     }
 
     /**
-     * Create a tactical line for a single host with services underneath
+     * Create a tactical line for a single host
      *
      * @param Host $host
      *
@@ -355,7 +348,6 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
     protected function createHostTacticalLine(Host $host): BaseHtmlElement
     {
         $container = new HtmlElement('div', Attributes::create(['class' => 'host-tactical-container']));
-
         $line = new HtmlElement('div', Attributes::create(['class' => 'host-tactical-line']));
 
         // Host name with state ball
@@ -379,7 +371,7 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
         $nameContainer->addHtml($stateBall, $hostLink);
         $line->addHtml($nameContainer);
 
-        // Get service statistics for this host
+        // Service statistics
         $serviceStatsSummary = $this->getServiceStatsForHost($host->name);
 
         if ($serviceStatsSummary !== null) {
@@ -401,8 +393,8 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
 
         $container->addHtml($line);
 
-        // Add services list (3rd level) only if host is UP (soft_state = 0)
-        if ($host->state->soft_state === 0) {
+        // Services list (only for UP hosts)
+        if ($host->state->soft_state === ServiceStateToggle::HOST_STATE_UP) {
             $servicesContent = $this->createServicesContent($host);
             if ($servicesContent !== null) {
                 $container->addHtml($servicesContent);
@@ -423,15 +415,12 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
     {
         $services = $this->getServicesForHost($host->name);
 
-        $hasServices = false;
         $servicesArray = [];
-
         foreach ($services as $service) {
-            $hasServices = true;
             $servicesArray[] = $service;
         }
 
-        if (! $hasServices) {
+        if (empty($servicesArray)) {
             return null;
         }
 
@@ -461,8 +450,6 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
 
         $query->filter(Filter::equal('hostgroup.name', $hostgroupName));
 
-        // When host state filter is active without services filter, apply it at query level
-        // But when services filter is also active, we need to check both conditions in PHP
         if ($this->hostStateFilter !== null && ! $this->filterHostsByServices) {
             $stateFilters = [];
             foreach ($this->hostStateFilter as $state) {
@@ -470,7 +457,6 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
             }
             $query->filter(Filter::any(...$stateFilters));
 
-            // When filtering by state, exclude acknowledged, in downtime, and handled hosts
             $query->filter(Filter::equal('state.is_acknowledged', 'n'));
             $query->filter(Filter::equal('state.in_downtime', 'n'));
             $query->filter(Filter::equal('state.is_handled', 'n'));
@@ -501,7 +487,6 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
 
         $query->filter(Filter::equal('host.name', $hostName));
 
-        // Apply service state filter if set
         if ($this->serviceStateFilter !== null && ! empty($this->serviceStateFilter)) {
             $stateFilters = [];
             foreach ($this->serviceStateFilter as $state) {
@@ -509,7 +494,6 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
             }
             $query->filter(Filter::any(...$stateFilters));
 
-            // Also filter for unhandled services only
             $query->filter(Filter::equal('state.is_acknowledged', 'n'));
             $query->filter(Filter::equal('state.in_downtime', 'n'));
             $query->filter(Filter::equal('state.is_handled', 'n'));
@@ -544,7 +528,6 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
 
         $result = $query->first();
 
-        // Check if result exists and has valid data
         if ($result === null || $result->services_total === null || $result->services_total === 0) {
             return null;
         }

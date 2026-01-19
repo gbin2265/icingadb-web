@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /* Icinga DB Web | (c) 2020 Icinga GmbH | GPLv2 */
 
 namespace Icinga\Module\Icingadb\Model;
@@ -12,7 +14,6 @@ use ipl\Orm\Relations;
 use ipl\Orm\UnionModel;
 use ipl\Sql\Connection;
 use ipl\Sql\Expression;
-use ipl\Sql\Select;
 
 class TacticallineSummary extends UnionModel
 {
@@ -30,10 +31,6 @@ class TacticallineSummary extends UnionModel
                 $auth->assertColumnRestrictions($q->getFilter());
             }
         );
-
-        $q->on($q::ON_SELECT_ASSEMBLED, function (Select $select) use ($q) {
-            $model = $q->getModel();
-        });
 
         return $q;
     }
