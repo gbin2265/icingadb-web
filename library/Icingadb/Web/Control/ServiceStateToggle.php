@@ -22,10 +22,13 @@ class ServiceStateToggle extends CompatForm
     ];
 
     /** @var bool */
-    protected $criticalHostValue;
+    protected $hostOkValue;
 
     /** @var bool */
-    protected $hiddenHostValue;
+    protected $hostCriticalValue;
+
+    /** @var bool */
+    protected $hostServicesValue;
 
     /** @var bool */
     protected $criticalValue;
@@ -39,16 +42,18 @@ class ServiceStateToggle extends CompatForm
     /**
      * Create ServiceStateToggle with URL param values
      *
-     * @param bool $criticalHost
-     * @param bool $hiddenHost
+     * @param bool $hostOk
+     * @param bool $hostCritical
+     * @param bool $hostServices
      * @param bool $critical
      * @param bool $warning
      * @param bool $unknown
      */
-    public function __construct(bool $criticalHost, bool $hiddenHost, bool $critical, bool $warning, bool $unknown)
+    public function __construct(bool $hostOk, bool $hostCritical, bool $hostServices, bool $critical, bool $warning, bool $unknown)
     {
-        $this->criticalHostValue = $criticalHost;
-        $this->hiddenHostValue = $hiddenHost;
+        $this->hostOkValue = $hostOk;
+        $this->hostCriticalValue = $hostCritical;
+        $this->hostServicesValue = $hostServices;
         $this->criticalValue = $critical;
         $this->warningValue = $warning;
         $this->unknownValue = $unknown;
@@ -69,23 +74,33 @@ class ServiceStateToggle extends CompatForm
     }
 
     /**
-     * Get whether critical host is checked
+     * Get whether host OK is checked
      *
      * @return bool
      */
-    public function isCriticalHostChecked(): bool
+    public function isHostOkChecked(): bool
     {
-        return $this->criticalHostValue;
+        return $this->hostOkValue;
     }
 
     /**
-     * Get whether hidden host is checked
+     * Get whether host critical is checked
      *
      * @return bool
      */
-    public function isHiddenHostChecked(): bool
+    public function isHostCriticalChecked(): bool
     {
-        return $this->hiddenHostValue;
+        return $this->hostCriticalValue;
+    }
+
+    /**
+     * Get whether host services is checked
+     *
+     * @return bool
+     */
+    public function isHostServicesChecked(): bool
+    {
+        return $this->hostServicesValue;
     }
 
     /**
@@ -142,13 +157,33 @@ class ServiceStateToggle extends CompatForm
         return empty($states) ? null : $states;
     }
 
+    /**
+     * Get the selected host states as array
+     *
+     * @return array|null Array of state integers or null if none selected
+     */
+    public function getSelectedHostStates(): ?array
+    {
+        $states = [];
+
+        if ($this->isHostOkChecked()) {
+            $states[] = 0; // UP
+        }
+
+        if ($this->isHostCriticalChecked()) {
+            $states[] = 1; // DOWN
+        }
+
+        return empty($states) ? null : $states;
+    }
+
     protected function assemble()
     {
         // Build base URL params (excluding our checkbox params)
         $currentUrl = Url::fromRequest();
         $baseParams = [];
         foreach ($currentUrl->getParams()->toArray() as $param) {
-            if (! in_array($param[0], ['checkboxhostcritical', 'checkboxhosthidden', 'checkboxservicecritical', 'checkboxservicewarning', 'checkboxserviceunknown'])) {
+            if (! in_array($param[0], ['checkboxhostok', 'checkboxhostcritical', 'checkboxhostservices', 'checkboxservicecritical', 'checkboxservicewarning', 'checkboxserviceunknown'])) {
                 $baseParams[$param[0]] = $param[1];
             }
         }
@@ -165,7 +200,7 @@ class ServiceStateToggle extends CompatForm
         // If currently on -> remove it, if currently off -> add it
         $buildUrl = function($toggleParam, $params) use ($baseUrl) {
             $newParams = [];
-            foreach (['checkboxhostcritical', 'checkboxhosthidden', 'checkboxservicecritical', 'checkboxservicewarning', 'checkboxserviceunknown'] as $p) {
+            foreach (['checkboxhostok', 'checkboxhostcritical', 'checkboxhostservices', 'checkboxservicecritical', 'checkboxservicewarning', 'checkboxserviceunknown'] as $p) {
                 if ($p === $toggleParam) {
                     // Toggle this param
                     if (! $params[$p]) {
@@ -187,8 +222,9 @@ class ServiceStateToggle extends CompatForm
         };
 
         $currentParams = [
-            'checkboxhostcritical' => $this->criticalHostValue,
-            'checkboxhosthidden' => $this->hiddenHostValue,
+            'checkboxhostok' => $this->hostOkValue,
+            'checkboxhostcritical' => $this->hostCriticalValue,
+            'checkboxhostservices' => $this->hostServicesValue,
             'checkboxservicecritical' => $this->criticalValue,
             'checkboxservicewarning' => $this->warningValue,
             'checkboxserviceunknown' => $this->unknownValue
@@ -198,36 +234,53 @@ class ServiceStateToggle extends CompatForm
         $hostBox = Html::tag('div', ['class' => 'checkbox-group host-checkbox-group']);
         $hostBox->addHtml(Html::tag('span', ['class' => 'checkbox-group-label'], t('Host')));
         
-        $hostLabel = Html::tag('label');
-        $hostAttrs = [
+        // OK checkbox
+        $okLabel = Html::tag('label');
+        $okAttrs = [
+            'type' => 'checkbox',
+            'name' => 'checkboxhostok',
+            'id' => $this->protectId('checkboxhostok'),
+            'value' => 'y',
+            'onclick' => sprintf("window.location.href='%s';", $buildUrl('checkboxhostok', $currentParams))
+        ];
+        if ($this->hostOkValue) {
+            $okAttrs['checked'] = true;
+        }
+        $okLabel->addHtml(Text::create(t('Ok') . ' '));
+        $okLabel->addHtml(Html::tag('input', $okAttrs));
+        $hostBox->addHtml($okLabel);
+
+        // Critical checkbox
+        $criticalHostLabel = Html::tag('label');
+        $criticalHostAttrs = [
             'type' => 'checkbox',
             'name' => 'checkboxhostcritical',
             'id' => $this->protectId('checkboxhostcritical'),
             'value' => 'y',
             'onclick' => sprintf("window.location.href='%s';", $buildUrl('checkboxhostcritical', $currentParams))
         ];
-        if ($this->criticalHostValue) {
-            $hostAttrs['checked'] = true;
+        if ($this->hostCriticalValue) {
+            $criticalHostAttrs['checked'] = true;
         }
-        $hostLabel->addHtml(Text::create(t('Critical') . ' '));
-        $hostLabel->addHtml(Html::tag('input', $hostAttrs));
-        $hostBox->addHtml($hostLabel);
+        $criticalHostLabel->addHtml(Text::create(t('Critical') . ' '));
+        $criticalHostLabel->addHtml(Html::tag('input', $criticalHostAttrs));
+        $hostBox->addHtml($criticalHostLabel);
 
-        // Hidden checkbox
-        $hiddenLabel = Html::tag('label');
-        $hiddenAttrs = [
+        // Services checkbox
+        $servicesLabel = Html::tag('label');
+        $servicesAttrs = [
             'type' => 'checkbox',
-            'name' => 'checkboxhosthidden',
-            'id' => $this->protectId('checkboxhosthidden'),
+            'name' => 'checkboxhostservices',
+            'id' => $this->protectId('checkboxhostservices'),
             'value' => 'y',
-            'onclick' => sprintf("window.location.href='%s';", $buildUrl('checkboxhosthidden', $currentParams))
+            'onclick' => sprintf("window.location.href='%s';", $buildUrl('checkboxhostservices', $currentParams))
         ];
-        if ($this->hiddenHostValue) {
-            $hiddenAttrs['checked'] = true;
+        if ($this->hostServicesValue) {
+            $servicesAttrs['checked'] = true;
         }
-        $hiddenLabel->addHtml(Text::create(t('Hidden') . ' '));
-        $hiddenLabel->addHtml(Html::tag('input', $hiddenAttrs));
-        $hostBox->addHtml($hiddenLabel);
+        $servicesLabel->addHtml(Text::create(t('Services') . ' '));
+        $servicesLabel->addHtml(Html::tag('input', $servicesAttrs));
+        $hostBox->addHtml($servicesLabel);
 
         // Service box
         $serviceBox = Html::tag('div', ['class' => 'checkbox-group service-checkbox-group']);

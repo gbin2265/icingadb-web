@@ -32,8 +32,9 @@ class HostgroupsprojecttacticalController extends Controller
 
         // Read and remove checkbox values from URL params BEFORE filter processing
         // All defaults are OFF - only ON if param exists in URL
-        $criticalHostValue = $this->params->shift('checkboxhostcritical') === 'y';
-        $hiddenHostValue = $this->params->shift('checkboxhosthidden') === 'y';
+        $hostOkValue = $this->params->shift('checkboxhostok') === 'y';
+        $hostCriticalValue = $this->params->shift('checkboxhostcritical') === 'y';
+        $hostServicesValue = $this->params->shift('checkboxhostservices') === 'y';
         $criticalValue = $this->params->shift('checkboxservicecritical') === 'y';
         $warningValue = $this->params->shift('checkboxservicewarning') === 'y';
         $unknownValue = $this->params->shift('checkboxserviceunknown') === 'y';
@@ -60,8 +61,9 @@ class HostgroupsprojecttacticalController extends Controller
 
         // Create toggle with values
         $serviceStateToggle = new ServiceStateToggle(
-            $criticalHostValue,
-            $hiddenHostValue,
+            $hostOkValue,
+            $hostCriticalValue,
+            $hostServicesValue,
             $criticalValue,
             $warningValue,
             $unknownValue
@@ -108,11 +110,12 @@ class HostgroupsprojecttacticalController extends Controller
         $selectedStates = $serviceStateToggle->getSelectedStates();
         $content->setServiceStateFilter($selectedStates);
 
-        // Set whether to show critical hosts
-        $content->setShowCriticalHosts($serviceStateToggle->isCriticalHostChecked());
+        // Set host state filter based on checkboxes
+        $selectedHostStates = $serviceStateToggle->getSelectedHostStates();
+        $content->setHostStateFilter($selectedHostStates);
 
-        // Set whether to hide hosts without services
-        $content->setHideHostsWithoutServices($serviceStateToggle->isHiddenHostChecked());
+        // Set whether to filter hosts by services
+        $content->setFilterHostsByServices($serviceStateToggle->isHostServicesChecked());
 
         $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
@@ -128,8 +131,9 @@ class HostgroupsprojecttacticalController extends Controller
     public function completeAction()
     {
         // Remove checkbox params before filter processing
+        $this->params->shift('checkboxhostok');
         $this->params->shift('checkboxhostcritical');
-        $this->params->shift('checkboxhosthidden');
+        $this->params->shift('checkboxhostservices');
         $this->params->shift('checkboxservicecritical');
         $this->params->shift('checkboxservicewarning');
         $this->params->shift('checkboxserviceunknown');
@@ -143,8 +147,9 @@ class HostgroupsprojecttacticalController extends Controller
     public function searchEditorAction()
     {
         // Remove checkbox params before filter processing
+        $this->params->shift('checkboxhostok');
         $this->params->shift('checkboxhostcritical');
-        $this->params->shift('checkboxhosthidden');
+        $this->params->shift('checkboxhostservices');
         $this->params->shift('checkboxservicecritical');
         $this->params->shift('checkboxservicewarning');
         $this->params->shift('checkboxserviceunknown');

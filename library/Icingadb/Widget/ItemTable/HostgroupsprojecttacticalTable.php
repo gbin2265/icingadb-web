@@ -47,11 +47,11 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
     /** @var array|null Filter for service states to show (e.g. [2] for critical only) */
     protected $serviceStateFilter;
 
-    /** @var bool Whether to show critical (DOWN) hosts */
-    protected $showCriticalHosts = true;
+    /** @var array|null Filter for host states to show (e.g. [0] for OK, [1] for DOWN) */
+    protected $hostStateFilter;
 
-    /** @var bool Whether to hide hosts that have no services to display */
-    protected $hideHostsWithoutServices = false;
+    /** @var bool Whether to filter hosts by having services to display */
+    protected $filterHostsByServices = false;
 
     /**
      * Create a new HostgroupsprojecttacticalTable
@@ -116,51 +116,54 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
     }
 
     /**
-     * Set whether to show critical (DOWN) hosts
+     * Set the host state filter
      *
-     * @param bool $show
+     * States: 0 = UP (OK), 1 = DOWN (Critical)
+     * When null, all hosts are shown regardless of state
+     *
+     * @param array|null $states Array of state integers to show
      *
      * @return $this
      */
-    public function setShowCriticalHosts(bool $show): self
+    public function setHostStateFilter(?array $states): self
     {
-        $this->showCriticalHosts = $show;
+        $this->hostStateFilter = $states;
 
         return $this;
     }
 
     /**
-     * Get whether to show critical (DOWN) hosts
+     * Get the host state filter
      *
-     * @return bool
+     * @return array|null
      */
-    public function getShowCriticalHosts(): bool
+    public function getHostStateFilter(): ?array
     {
-        return $this->showCriticalHosts;
+        return $this->hostStateFilter;
     }
 
     /**
-     * Set whether to hide hosts that have no services to display
+     * Set whether to filter hosts by having services to display
      *
-     * @param bool $hide
+     * @param bool $filter
      *
      * @return $this
      */
-    public function setHideHostsWithoutServices(bool $hide): self
+    public function setFilterHostsByServices(bool $filter): self
     {
-        $this->hideHostsWithoutServices = $hide;
+        $this->filterHostsByServices = $filter;
 
         return $this;
     }
 
     /**
-     * Get whether to hide hosts that have no services to display
+     * Get whether to filter hosts by having services to display
      *
      * @return bool
      */
-    public function getHideHostsWithoutServices(): bool
+    public function getFilterHostsByServices(): bool
     {
-        return $this->hideHostsWithoutServices;
+        return $this->filterHostsByServices;
     }
 
     /**
@@ -282,28 +285,9 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
         $hasHosts = false;
 
         foreach ($hosts as $host) {
-            // Skip DOWN hosts if showCriticalHosts is false
-            if (! $this->showCriticalHosts && $host->state->soft_state === 1) {
+            // Check if host should be shown based on filters
+            if (! $this->shouldShowHost($host)) {
                 continue;
-            }
-
-            // If hideHostsWithoutServices is enabled, check if host has services to display
-            if ($this->hideHostsWithoutServices) {
-                // Only check for UP hosts since DOWN hosts don't show services anyway
-                if ($host->state->soft_state === 0) {
-                    $services = $this->getServicesForHost($host->name);
-                    $hasServices = false;
-                    foreach ($services as $service) {
-                        $hasServices = true;
-                        break;
-                    }
-                    if (! $hasServices) {
-                        continue;
-                    }
-                } else {
-                    // DOWN hosts never show services, so skip them if hideHostsWithoutServices is enabled
-                    continue;
-                }
             }
 
             $hasHosts = true;
@@ -311,6 +295,54 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
         }
 
         return $hasHosts ? $content : null;
+    }
+
+    /**
+     * Check if a host should be shown based on the active filters
+     *
+     * @param Host $host
+     *
+     * @return bool
+     */
+    protected function shouldShowHost(Host $host): bool
+    {
+        // If no filters are active, show all hosts
+        if ($this->hostStateFilter === null && ! $this->filterHostsByServices) {
+            return true;
+        }
+
+        // Check if host matches the state filter (Ok or Critical)
+        $matchesStateFilter = false;
+        if ($this->hostStateFilter !== null) {
+            $matchesStateFilter = in_array($host->state->soft_state, $this->hostStateFilter);
+        }
+
+        // Check if host has services to display
+        $hasServices = false;
+        if ($this->filterHostsByServices) {
+            // Only UP hosts can show services
+            if ($host->state->soft_state === 0) {
+                $services = $this->getServicesForHost($host->name);
+                foreach ($services as $service) {
+                    $hasServices = true;
+                    break;
+                }
+            }
+        }
+
+        // Logic:
+        // - If only state filter is active: show hosts matching state
+        // - If only services filter is active: show hosts with services
+        // - If both are active: show hosts matching state OR hosts with services
+        if ($this->hostStateFilter !== null && $this->filterHostsByServices) {
+            return $matchesStateFilter || $hasServices;
+        } elseif ($this->hostStateFilter !== null) {
+            return $matchesStateFilter;
+        } elseif ($this->filterHostsByServices) {
+            return $hasServices;
+        }
+
+        return true;
     }
 
     /**
@@ -428,6 +460,21 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
             ->setResultSetClass(VolatileStateResults::class);
 
         $query->filter(Filter::equal('hostgroup.name', $hostgroupName));
+
+        // When host state filter is active without services filter, apply it at query level
+        // But when services filter is also active, we need to check both conditions in PHP
+        if ($this->hostStateFilter !== null && ! $this->filterHostsByServices) {
+            $stateFilters = [];
+            foreach ($this->hostStateFilter as $state) {
+                $stateFilters[] = Filter::equal('state.soft_state', $state);
+            }
+            $query->filter(Filter::any(...$stateFilters));
+
+            // When filtering by state, exclude acknowledged, in downtime, and handled hosts
+            $query->filter(Filter::equal('state.is_acknowledged', 'n'));
+            $query->filter(Filter::equal('state.in_downtime', 'n'));
+            $query->filter(Filter::equal('state.is_handled', 'n'));
+        }
 
         if ($this->baseFilter !== null) {
             $query->filter($this->baseFilter);
