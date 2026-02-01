@@ -59,9 +59,6 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
     /** @var int[]|null Filter for host states (0=UP, 1=DOWN) */
     protected ?array $hostStateFilter = null;
 
-    /** @var bool Whether to filter hosts by having services to display */
-    protected bool $filterHostsByServices = false;
-
     /**
      * Create a new HostgroupsprojecttacticalTable
      *
@@ -144,30 +141,6 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
     public function getHostStateFilter(): ?array
     {
         return $this->hostStateFilter;
-    }
-
-    /**
-     * Set whether to filter hosts by having services to display
-     *
-     * @param bool $filter
-     *
-     * @return $this
-     */
-    public function setFilterHostsByServices(bool $filter): self
-    {
-        $this->filterHostsByServices = $filter;
-
-        return $this;
-    }
-
-    /**
-     * Get whether to filter hosts by having services to display
-     *
-     * @return bool
-     */
-    public function getFilterHostsByServices(): bool
-    {
-        return $this->filterHostsByServices;
     }
 
     /**
@@ -283,69 +256,206 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
      */
     protected function createHostsContent(HostgroupsprojecttacticalSummary $item): ?BaseHtmlElement
     {
-        $hosts = $this->getHostsForHostgroup($item->name);
-
-        $content = new HtmlElement('div', Attributes::create(['class' => 'hostgroup-tactical-content']));
-        $hasHosts = false;
-
-        foreach ($hosts as $host) {
-            if (! $this->shouldShowHost($host)) {
-                continue;
-            }
-
-            $hasHosts = true;
-            $content->addHtml($this->createHostTacticalLine($host));
+        // Early exit: check Summary data to avoid unnecessary queries
+        if (! $this->hasMatchingItems($item)) {
+            return null;
         }
 
-        return $hasHosts ? $content : null;
+        $content = new HtmlElement('div', Attributes::create(['class' => 'hostgroup-tactical-content']));
+        $hostsToShow = [];
+        $servicesByHost = [];
+
+        // 1. If host filter active: get hosts matching that filter
+        if ($this->hostStateFilter !== null) {
+            $hosts = $this->getHostsByStateFilter($item->name);
+            foreach ($hosts as $host) {
+                $hostsToShow[$host->name] = $host;
+            }
+        }
+
+        // 2. If service filter active: get services matching that filter, group by host
+        if ($this->serviceStateFilter !== null) {
+            $services = $this->getServicesByStateFilter($item->name);
+            foreach ($services as $service) {
+                $hostName = $service->host->name;
+                // Add host to show list if not already there
+                if (! isset($hostsToShow[$hostName])) {
+                    $hostsToShow[$hostName] = $service->host;
+                }
+                // Collect services per host
+                if (! isset($servicesByHost[$hostName])) {
+                    $servicesByHost[$hostName] = [];
+                }
+                $servicesByHost[$hostName][] = $service;
+            }
+        }
+
+        if (empty($hostsToShow)) {
+            return null;
+        }
+
+        // Sort by severity (DOWN first) then by name
+        uasort($hostsToShow, function ($a, $b) {
+            if ($a->state->severity !== $b->state->severity) {
+                return $b->state->severity <=> $a->state->severity;
+            }
+            return $a->display_name <=> $b->display_name;
+        });
+
+        foreach ($hostsToShow as $hostName => $host) {
+            // Pass services if available (from service filter), otherwise null
+            $hostServices = $servicesByHost[$hostName] ?? null;
+            $content->addHtml($this->createHostTacticalLine($host, $hostServices));
+        }
+
+        return $content;
     }
 
     /**
-     * Check if a host should be shown based on the active filters
+     * Check if the hostgroup has items that match the current filters
      *
-     * @param Host $host
+     * Uses Summary data to avoid unnecessary database queries
+     *
+     * @param HostgroupsprojecttacticalSummary $item
      *
      * @return bool
      */
-    protected function shouldShowHost(Host $host): bool
+    protected function hasMatchingItems(HostgroupsprojecttacticalSummary $item): bool
     {
-        if ($this->hostStateFilter === null && ! $this->filterHostsByServices) {
-            return true;
+        // If no filters are active, nothing to display in detail view
+        if ($this->hostStateFilter === null && $this->serviceStateFilter === null) {
+            return false;
         }
 
-        $matchesStateFilter = false;
+        $hasMatchingHosts = false;
+        $hasMatchingServices = false;
+
+        // Check host state filter
         if ($this->hostStateFilter !== null) {
-            $matchesStateFilter = in_array($host->state->soft_state, $this->hostStateFilter, true);
-        }
+            $matchingHosts = 0;
 
-        $hasServices = false;
-        if ($this->filterHostsByServices && $host->state->soft_state === ServiceStateToggle::HOST_STATE_UP) {
-            $services = $this->getServicesForHost($host->name);
-            foreach ($services as $service) {
-                $hasServices = true;
-                break;
+            if (in_array(ServiceStateToggle::HOST_STATE_UP, $this->hostStateFilter, true)) {
+                $matchingHosts += (int) $item->hosts_up;
             }
+
+            if (in_array(ServiceStateToggle::HOST_STATE_DOWN, $this->hostStateFilter, true)) {
+                // We filter on unhandled hosts only
+                $matchingHosts += (int) $item->hosts_down_unhandled;
+            }
+
+            $hasMatchingHosts = $matchingHosts > 0;
         }
 
-        if ($this->hostStateFilter !== null && $this->filterHostsByServices) {
-            return $matchesStateFilter || $hasServices;
-        } elseif ($this->hostStateFilter !== null) {
-            return $matchesStateFilter;
-        } elseif ($this->filterHostsByServices) {
-            return $hasServices;
+        // Check service state filter
+        if ($this->serviceStateFilter !== null) {
+            $matchingServices = 0;
+
+            if (in_array(ServiceStateToggle::SERVICE_STATE_CRITICAL, $this->serviceStateFilter, true)) {
+                $matchingServices += (int) $item->services_critical_unhandled;
+            }
+
+            if (in_array(ServiceStateToggle::SERVICE_STATE_WARNING, $this->serviceStateFilter, true)) {
+                $matchingServices += (int) $item->services_warning_unhandled;
+            }
+
+            if (in_array(ServiceStateToggle::SERVICE_STATE_UNKNOWN, $this->serviceStateFilter, true)) {
+                $matchingServices += (int) $item->services_unknown_unhandled;
+            }
+
+            $hasMatchingServices = $matchingServices > 0;
         }
 
-        return true;
+        // OR logic: show if host filter matches OR service filter matches
+        if ($this->hostStateFilter !== null && $this->serviceStateFilter !== null) {
+            return $hasMatchingHosts || $hasMatchingServices;
+        }
+
+        // Only host filter active
+        if ($this->hostStateFilter !== null) {
+            return $hasMatchingHosts;
+        }
+
+        // Only service filter active
+        return $hasMatchingServices;
+    }
+
+    /**
+     * Get hosts for a hostgroup filtered by host state
+     *
+     * @param string $hostgroupName
+     *
+     * @return ResultSet
+     */
+    protected function getHostsByStateFilter(string $hostgroupName): ResultSet
+    {
+        $query = Host::on($this->db)
+            ->with(['state', 'hostgroup'])
+            ->setResultSetClass(VolatileStateResults::class);
+
+        $query->filter(Filter::equal('hostgroup.name', $hostgroupName));
+
+        // Filter by selected host states
+        $stateFilters = [];
+        foreach ($this->hostStateFilter as $state) {
+            $stateFilters[] = Filter::equal('state.soft_state', $state);
+        }
+        $query->filter(Filter::any(...$stateFilters));
+
+        // Only unhandled hosts
+        $query->filter(Filter::equal('state.is_acknowledged', 'n'));
+        $query->filter(Filter::equal('state.in_downtime', 'n'));
+        $query->filter(Filter::equal('state.is_handled', 'n'));
+
+        if ($this->baseFilter !== null) {
+            $query->filter($this->baseFilter);
+        }
+
+        return $query->execute();
+    }
+
+    /**
+     * Get services for a hostgroup filtered by service state
+     *
+     * @param string $hostgroupName
+     *
+     * @return ResultSet
+     */
+    protected function getServicesByStateFilter(string $hostgroupName): ResultSet
+    {
+        $query = Service::on($this->db)
+            ->with(['state', 'host', 'host.state', 'host.hostgroup'])
+            ->setResultSetClass(VolatileStateResults::class);
+
+        $query->filter(Filter::equal('host.hostgroup.name', $hostgroupName));
+
+        // Filter by selected service states
+        $stateFilters = [];
+        foreach ($this->serviceStateFilter as $state) {
+            $stateFilters[] = Filter::equal('state.soft_state', $state);
+        }
+        $query->filter(Filter::any(...$stateFilters));
+
+        // Only unhandled services
+        $query->filter(Filter::equal('state.is_acknowledged', 'n'));
+        $query->filter(Filter::equal('state.in_downtime', 'n'));
+        $query->filter(Filter::equal('state.is_handled', 'n'));
+
+        if ($this->baseFilter !== null) {
+            $query->filter($this->baseFilter);
+        }
+
+        return $query->execute();
     }
 
     /**
      * Create a tactical line for a single host
      *
      * @param Host $host
+     * @param array|null $services Pre-fetched services for this host (from service filter)
      *
      * @return BaseHtmlElement
      */
-    protected function createHostTacticalLine(Host $host): BaseHtmlElement
+    protected function createHostTacticalLine(Host $host, ?array $services = null): BaseHtmlElement
     {
         $container = new HtmlElement('div', Attributes::create(['class' => 'host-tactical-container']));
         $line = new HtmlElement('div', Attributes::create(['class' => 'host-tactical-line']));
@@ -393,120 +503,17 @@ class HostgroupsprojecttacticalTable extends BaseHtmlElement
 
         $container->addHtml($line);
 
-        // Services list (only for UP hosts)
-        if ($host->state->soft_state === ServiceStateToggle::HOST_STATE_UP) {
-            $servicesContent = $this->createServicesContent($host);
-            if ($servicesContent !== null) {
-                $container->addHtml($servicesContent);
-            }
+        // Services list (only if services were passed - means host came from service filter)
+        if ($services !== null && ! empty($services)) {
+            $serviceContainer = new HtmlElement('div', Attributes::create(['class' => 'host-services-container']));
+            $serviceList = (new ObjectList($services))
+                ->setViewMode('minimal')
+                ->setDetailActionsDisabled();
+            $serviceContainer->addHtml($serviceList);
+            $container->addHtml($serviceContainer);
         }
 
         return $container;
-    }
-
-    /**
-     * Create services list for a host
-     *
-     * @param Host $host
-     *
-     * @return BaseHtmlElement|null
-     */
-    protected function createServicesContent(Host $host): ?BaseHtmlElement
-    {
-        $services = $this->getServicesForHost($host->name);
-
-        $servicesArray = [];
-        foreach ($services as $service) {
-            $servicesArray[] = $service;
-        }
-
-        if (empty($servicesArray)) {
-            return null;
-        }
-
-        $serviceContainer = new HtmlElement('div', Attributes::create(['class' => 'host-services-container']));
-
-        $serviceList = (new ObjectList($servicesArray))
-            ->setViewMode('minimal')
-            ->setDetailActionsDisabled();
-
-        $serviceContainer->addHtml($serviceList);
-
-        return $serviceContainer;
-    }
-
-    /**
-     * Get hosts for a hostgroup
-     *
-     * @param string $hostgroupName
-     *
-     * @return ResultSet
-     */
-    protected function getHostsForHostgroup(string $hostgroupName): ResultSet
-    {
-        $query = Host::on($this->db)
-            ->with(['state', 'hostgroup'])
-            ->setResultSetClass(VolatileStateResults::class);
-
-        $query->filter(Filter::equal('hostgroup.name', $hostgroupName));
-
-        if ($this->hostStateFilter !== null && ! $this->filterHostsByServices) {
-            $stateFilters = [];
-            foreach ($this->hostStateFilter as $state) {
-                $stateFilters[] = Filter::equal('state.soft_state', $state);
-            }
-            $query->filter(Filter::any(...$stateFilters));
-
-            $query->filter(Filter::equal('state.is_acknowledged', 'n'));
-            $query->filter(Filter::equal('state.in_downtime', 'n'));
-            $query->filter(Filter::equal('state.is_handled', 'n'));
-        }
-
-        if ($this->baseFilter !== null) {
-            $query->filter($this->baseFilter);
-        }
-
-        $query->orderBy('host.state.severity', 'desc')
-            ->orderBy('host.display_name', 'asc');
-
-        return $query->execute();
-    }
-
-    /**
-     * Get services for a host
-     *
-     * @param string $hostName
-     *
-     * @return ResultSet
-     */
-    protected function getServicesForHost(string $hostName): ResultSet
-    {
-        $query = Service::on($this->db)
-            ->with(['state', 'state.last_comment', 'icon_image', 'host', 'host.state'])
-            ->setResultSetClass(VolatileStateResults::class);
-
-        $query->filter(Filter::equal('host.name', $hostName));
-
-        if ($this->serviceStateFilter !== null && ! empty($this->serviceStateFilter)) {
-            $stateFilters = [];
-            foreach ($this->serviceStateFilter as $state) {
-                $stateFilters[] = Filter::equal('state.soft_state', $state);
-            }
-            $query->filter(Filter::any(...$stateFilters));
-
-            $query->filter(Filter::equal('state.is_acknowledged', 'n'));
-            $query->filter(Filter::equal('state.in_downtime', 'n'));
-            $query->filter(Filter::equal('state.is_handled', 'n'));
-        }
-
-        if ($this->baseFilter !== null) {
-            $query->filter($this->baseFilter);
-        }
-
-        $query->orderBy('service.state.severity', 'desc')
-            ->orderBy('service.display_name', 'asc');
-
-        return $query->execute();
     }
 
     /**

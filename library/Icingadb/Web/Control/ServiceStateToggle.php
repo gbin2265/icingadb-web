@@ -52,7 +52,6 @@ class ServiceStateToggle extends BaseHtmlElement
     public const CHECKBOX_PARAMS = [
         'checkboxhostok',
         'checkboxhostcritical',
-        'checkboxhostservices',
         'checkboxservicecritical',
         'checkboxservicewarning',
         'checkboxserviceunknown'
@@ -63,9 +62,6 @@ class ServiceStateToggle extends BaseHtmlElement
 
     /** @var bool */
     protected bool $hostCriticalValue = false;
-
-    /** @var bool */
-    protected bool $hostServicesValue = false;
 
     /** @var bool */
     protected bool $criticalValue = false;
@@ -88,7 +84,6 @@ class ServiceStateToggle extends BaseHtmlElement
 
         $this->hostOkValue = $url->getParam('checkboxhostok') === 'y';
         $this->hostCriticalValue = $url->getParam('checkboxhostcritical') === 'y';
-        $this->hostServicesValue = $url->getParam('checkboxhostservices') === 'y';
         $this->criticalValue = $url->getParam('checkboxservicecritical') === 'y';
         $this->warningValue = $url->getParam('checkboxservicewarning') === 'y';
         $this->unknownValue = $url->getParam('checkboxserviceunknown') === 'y';
@@ -115,16 +110,6 @@ class ServiceStateToggle extends BaseHtmlElement
     public function isHostCriticalChecked(): bool
     {
         return $this->hostCriticalValue;
-    }
-
-    /**
-     * Get whether host services is checked
-     *
-     * @return bool
-     */
-    public function isHostServicesChecked(): bool
-    {
-        return $this->hostServicesValue;
     }
 
     /**
@@ -231,7 +216,6 @@ class ServiceStateToggle extends BaseHtmlElement
         $currentValues = [
             'checkboxhostok' => $this->hostOkValue,
             'checkboxhostcritical' => $this->hostCriticalValue,
-            'checkboxhostservices' => $this->hostServicesValue,
             'checkboxservicecritical' => $this->criticalValue,
             'checkboxservicewarning' => $this->warningValue,
             'checkboxserviceunknown' => $this->unknownValue
@@ -304,7 +288,6 @@ class ServiceStateToggle extends BaseHtmlElement
 
         $hostGroup->addHtml($this->createToggleLink('checkboxhostok', $this->translate('Ok'), $this->hostOkValue));
         $hostGroup->addHtml($this->createToggleLink('checkboxhostcritical', $this->translate('Critical'), $this->hostCriticalValue));
-        $hostGroup->addHtml($this->createToggleLink('checkboxhostservices', $this->translate('Services'), $this->hostServicesValue));
 
         // Service group
         $serviceGroup = new HtmlElement('div', Attributes::create(['class' => 'checkbox-group service-checkbox-group']));

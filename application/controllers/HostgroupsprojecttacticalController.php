@@ -103,7 +103,6 @@ class HostgroupsprojecttacticalController extends Controller
         $content->setBaseFilter($filter);
         $content->setServiceStateFilter($serviceStateToggle->getSelectedStates());
         $content->setHostStateFilter($serviceStateToggle->getSelectedHostStates());
-        $content->setFilterHostsByServices($serviceStateToggle->isHostServicesChecked());
         $content->setEmptyStateMessage($paginationControl->getEmptyStateMessage());
 
         $this->addContent($content);
