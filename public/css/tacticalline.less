@@ -1,0 +1,40 @@
+/* Icinga DB Web | (c) 2025 Icinga GmbH | GPLv2 */
+/* GeBi custom view - Tactical Line CSS */
+
+.tacticalline-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5em 1em;
+  border: 1px solid @gray-light;
+  border-radius: 0.25em;
+  background: transparent;
+  overflow: hidden;
+
+  .object-statistics {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+
+    > li {
+      margin: 0;
+      padding: 0;
+
+      &:not(:last-child) {
+        margin-right: 1em;
+      }
+    }
+
+    .object-statistics-graph {
+      svg {
+        width: 2em;
+        height: 2em;
+      }
+    }
+  }
+}
