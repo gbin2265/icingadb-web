@@ -67,7 +67,10 @@ class TacticallineController extends Controller
         // Create tactical line container with statistics (NOT donuts)
         $content = new HtmlElement(
             'div',
-            Attributes::create(['class' => 'tacticalline-container'])
+            Attributes::create([
+                'class' => 'tacticalline-container',
+                'data-base-target' => '_next'
+            ])
         );
 
         // Get summary results (use empty fallback if null)
