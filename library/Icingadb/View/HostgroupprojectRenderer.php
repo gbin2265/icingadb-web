@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 /* Icinga DB Web | (c) 2025 Icinga GmbH | GPLv2 */
+/* GeBi custom view - identical to HostgroupRenderer but with HostgroupprojectSummary type hint */
 
 namespace Icinga\Module\Icingadb\View;
 
