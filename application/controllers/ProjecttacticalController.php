@@ -19,6 +19,7 @@ use Icinga\Module\Icingadb\Widget\Detail\ServiceStatistics;
 use Icinga\Module\Icingadb\Widget\ItemTable\ProjecttacticalTable;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlElement;
+use ipl\Html\Text;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
 
@@ -47,6 +48,9 @@ class ProjecttacticalController extends Controller
 
         $db = $this->getDb();
 
+        // Shift projectname parameter before filter processing
+        $projectName = $this->params->shift('projectname');
+
         $hosts = ProjecttacticalSummary::on($db);
 
         $this->handleSearchRequest($hosts);
@@ -68,6 +72,7 @@ class ProjecttacticalController extends Controller
         $searchBar = $this->createSearchBar($hosts, [
             $limitControl->getLimitParam(),
             $sortControl->getSortParam(),
+            'projectname'
         ]);
 
         if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
@@ -91,9 +96,26 @@ class ProjecttacticalController extends Controller
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
         $this->addControl($limitControl);
-        $this->addControl($searchBar);
+        if ($projectName === null || $projectName === '') {
+            $this->addControl($searchBar);
+        }
 
         $results = $hosts->execute();
+
+        // Project title box (only visible if projectname parameter is set)
+        if ($projectName !== null && $projectName !== '') {
+            $projectTitle = new HtmlElement(
+                'div',
+                Attributes::create(['class' => 'projecttactical-title']),
+                new HtmlElement(
+                    'span',
+                    Attributes::create(['class' => 'projecttactical-title-text']),
+                    Text::create(t('Project') . ' ' . $projectName)
+                )
+            );
+
+            $this->addContent($projectTitle);
+        }
 
         // Tactical line summary (respects the same filter)
         $hoststateSummary = HoststateSummary::on($db);
