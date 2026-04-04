@@ -1,12 +1,15 @@
 <?php
 
-declare(strict_types=1);
+// SPDX-FileCopyrightText: 2019 Icinga GmbH <https://icinga.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
-/* Icinga DB Web | (c) 2020 Icinga GmbH | GPLv2 */
+/* GeBi - Custom */
+declare(strict_types=1);
 
 namespace Icinga\Module\Icingadb\Controllers;
 
 use ArrayIterator;
+use Generator;
 use Icinga\Exception\NotFoundError;
 use Icinga\Module\Icingadb\Command\Object\GetObjectCommand;
 use Icinga\Module\Icingadb\Command\Transport\CommandTransport;
@@ -19,6 +22,7 @@ use Icinga\Module\Icingadb\Model\DependencyNode;
 use Icinga\Module\Icingadb\Model\History;
 use Icinga\Module\Icingadb\Model\Service;
 use Icinga\Module\Icingadb\Redis\VolatileStateResults;
+use Icinga\Module\Icingadb\Util\OptimizerHints;
 use Icinga\Module\Icingadb\Web\Control\SearchBar\ObjectSuggestions;
 use Icinga\Module\Icingadb\Web\Control\ViewModeSwitcher;
 use Icinga\Module\Icingadb\Web\Controller;
@@ -36,9 +40,8 @@ use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
 use ipl\Web\Url;
 use ipl\Web\Widget\Tabs;
-use Generator;
 
-/* GeBi - Custom MetaInfo Links Widget */
+/* GeBi - Custom */
 use Icinga\Module\Icingadb\Widget\Detail\ServiceMetaInfoLinks;
 
 class ServiceController extends Controller
@@ -100,9 +103,9 @@ class ServiceController extends Controller
             $this->controls->addAttributes(['class' => 'overdue']);
         }
 
-        /* GeBi - Custom MetaInfo Links Widget */
+	/* GeBi - Custom */
         $this->addControl(new ServiceMetaInfoLinks($this->service));
-        $this->addControl(new ServiceMetaInfo($this->service));
+	$this->addControl(new ServiceMetaInfo($this->service));
         $this->addControl(new QuickActions($this->service));
 
         $this->addContent(new ServiceDetail($this->service));
@@ -348,6 +351,8 @@ class ServiceController extends Controller
 
         $history->filter(Filter::lessThanOrEqual('event_time', $before));
         $this->filter($history, $filter);
+
+        OptimizerHints::disableOptimizerForHistoryQueries($history);
 
         yield $this->export($history);
 

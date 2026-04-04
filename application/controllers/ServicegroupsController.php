@@ -1,6 +1,7 @@
 <?php
 
-/* Icinga DB Web | (c) 2020 Icinga GmbH | GPLv2 */
+// SPDX-FileCopyrightText: 2019 Icinga GmbH <https://icinga.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 namespace Icinga\Module\Icingadb\Controllers;
 
@@ -50,7 +51,8 @@ class ServicegroupsController extends Controller
             [
                 'display_name'                         => t('Name'),
                 'services_severity desc, display_name' => t('Severity'),
-                'services_total desc'                  => t('Total Services'),
+		'services_total desc'                  => t('Total Services'),
+                /* GeBi - Custom */
                 'services_warning_unhandled desc'      => t('Srv Unhandled Warning'),
                 'services_critical_unhandled desc'     => t('Srv Unhandled Critial'),
                 'services_unknown_unhandled desc'      => t('Srv Unhandled Unknown'),
@@ -61,7 +63,7 @@ class ServicegroupsController extends Controller
                 'services_total desc'                  => t('Srv Total Services'),
                 'services_warning_handled desc'        => t('Srv Handled Warning'),
                 'services_unknown_handled desc'        => t('Srv Handled Unknown')
-	    ],
+            ],
             ['services_severity DESC', 'display_name']
         );
 

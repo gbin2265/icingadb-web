@@ -1,8 +1,10 @@
 <?php
 
-declare(strict_types=1);
+// SPDX-FileCopyrightText: 2019 Icinga GmbH <https://icinga.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
-/* Icinga DB Web | (c) 2020 Icinga GmbH | GPLv2 */
+/* GeBi - Custom */
+declare(strict_types=1); 
 
 namespace Icinga\Module\Icingadb\Common;
 
@@ -143,7 +145,7 @@ abstract class Links
         return Url::fromPath('icingadb/event', ['id' => bin2hex($event->id)]);
     }
 
-    /* Add by GeBi */
+    /* GeBi - Custom */
     public static function hostDetails($host): Url
     {
         return Url::fromPath('icingadb/host', ['name' => $host->name]);
@@ -158,10 +160,10 @@ abstract class Links
     {
         return Url::fromPath('icingadb/services', ['service.name' => $service->name]);
     }
-    
+
     public static function hostServices($host): Url
     {
         return Url::fromPath('icingadb/services', ['host.name' => $host->name]);
     }
-    
+
 }

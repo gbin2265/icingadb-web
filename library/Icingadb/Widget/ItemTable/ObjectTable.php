@@ -1,8 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-/* Icinga DB Web | (c) 2025 Icinga GmbH | GPLv2 */
+// SPDX-FileCopyrightText: 2025 Icinga GmbH <https://icinga.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 namespace Icinga\Module\Icingadb\Widget\ItemTable;
 
@@ -15,7 +14,7 @@ use ipl\Stdlib\Filter;
 use ipl\Web\Url;
 use ipl\Web\Widget\ItemTable;
 
-/* GeBi - Custom Summary Models */
+/* GeBi - Custom */
 use Icinga\Module\Icingadb\Model\HostgroupprojectSummary;
 use Icinga\Module\Icingadb\Model\ServicegroupprojectSummary;
 use Icinga\Module\Icingadb\Model\CheckcommandSummary;
@@ -70,7 +69,7 @@ class ObjectTable extends ItemTable
                 $this->setDetailUrl(Url::fromPath('icingadb/servicegroup'));
 
                 break;
-            /* GeBi - Custom Summary Models */
+            /* GeBi - Custom */
             case $data instanceof HostgroupprojectSummary:
                 $this->setDetailUrl(Url::fromPath('icingadb/hostgroupsproject'));
 
@@ -99,13 +98,12 @@ class ObjectTable extends ItemTable
                 $this->setDetailUrl(Url::fromPath('icingadb/tacticalline'));
                 $this->addAttributes(['class' => 'tacticalline-table']);
 
-                // TacticallineSummary has no name - it's a global aggregate
                 return $item;
             case $data instanceof HostgroupsprojecttacticalSummary:
                 $this->setDetailUrl(Url::fromPath('icingadb/hostgroupsprojecttactical'));
 
                 break;
-            default:
+	    default:
                 throw new NotImplementedError('Not implemented');
         }
 

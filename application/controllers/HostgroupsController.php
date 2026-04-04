@@ -1,6 +1,7 @@
 <?php
 
-/* Icinga DB Web | (c) 2020 Icinga GmbH | GPLv2 */
+// SPDX-FileCopyrightText: 2019 Icinga GmbH <https://icinga.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 namespace Icinga\Module\Icingadb\Controllers;
 
@@ -62,7 +63,8 @@ class HostgroupsController extends Controller
             [
                 'display_name'                      => t('Name'),
                 'hosts_severity desc, display_name' => t('Severity'),
-                'hosts_total desc'                  => t('Total Hosts'),
+		'hosts_total desc'                  => t('Total Hosts'),
+		/* GeBi - Custom */
                 'hosts_down_unhandled desc,hosts_pending desc'  => t('Hst Down Unhandled'),
                 'hosts_down_handled desc,hosts_pending desc'    => t('Hst Down Handled'),
                 'hosts_pending desc'                            => t('Hst Pending'),

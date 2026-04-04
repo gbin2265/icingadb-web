@@ -1,10 +1,12 @@
 <?php
 
-/* Icinga DB Web | (c) 2022 Icinga GmbH | GPLv2 */
+// SPDX-FileCopyrightText: 2022 Icinga GmbH <https://icinga.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 namespace Icinga\Module\Icingadb\Widget\ItemTable;
 
 use Icinga\Module\Icingadb\Common\HostStates;
+use Icinga\Module\Icingadb\Common\Icons;
 use Icinga\Module\Icingadb\Common\ServiceStates;
 use Icinga\Module\Icingadb\Model\Host;
 use Icinga\Module\Icingadb\Util\PerfDataSet;
@@ -31,11 +33,33 @@ abstract class StateRowItem extends BaseStateRowItem
     protected function assembleVisual(BaseHtmlElement $visual)
     {
         $stateBall = new StateBall($this->item->state->getStateText(), StateBall::SIZE_LARGE);
-        $stateBall->add($this->item->state->getIcon());
+        $icon = $this->item->state->getIcon();
 
-        $stateBall->setHandled($this->item->state->is_problem && (
-            $this->item->state->is_handled || ! $this->item->state->is_reachable
-        ));
+        if ($icon === null) {
+            if (! $this->item->notifications_enabled) {
+                $icon = new Icon(Icons::NOTIFICATIONS_DISABLED, [
+                    'title' => sprintf(
+                        '%s (%s)',
+                        strtoupper($this->item->state->getStateTextTranslated()),
+                        t('has notifications disabled')
+                    )
+                ]);
+            } elseif (! $this->item->active_checks_enabled) {
+                $icon = new Icon(Icons::ACTIVE_CHECKS_DISABLED, [
+                    'title' => sprintf(
+                        '%s (%s)',
+                        strtoupper($this->item->state->getStateTextTranslated()),
+                        t('has active checks disabled')
+                    )
+                ]);
+            }
+        }
+
+        $stateBall->add($icon);
+       /* GeBi - Custom */
+	$stateBall->setHandled(($this->item->state->is_problem && (
+            $this->item->state->is_handled || ! $this->item->state->is_reachable)) || $this->item->state->in_downtime
+        );
 
         $visual->addHtml($stateBall);
         if ($this->item->state->state_type === 'soft') {

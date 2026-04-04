@@ -1,8 +1,10 @@
 <?php
 
-declare(strict_types=1);
+// SPDX-FileCopyrightText: 2024 Icinga GmbH <https://icinga.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
-/* Icinga DB Web | (c) 2025 Icinga GmbH | GPLv2 */
+/* GeBi - Custom */
+declare(strict_types=1);
 
 namespace Icinga\Module\Icingadb\Widget\Detail;
 
@@ -32,7 +34,7 @@ use ipl\Orm\Model;
 use ipl\Web\Layout\HeaderItemLayout;
 use ipl\Web\Layout\ItemLayout;
 
-/* GeBi - Custom Summary Models and Renderers */
+/* GeBi - Custom */
 use Icinga\Module\Icingadb\Model\HostgroupprojectSummary;
 use Icinga\Module\Icingadb\Model\ServicegroupprojectSummary;
 use Icinga\Module\Icingadb\Model\CheckcommandSummary;
@@ -114,8 +116,9 @@ class ObjectHeader extends BaseHtmlElement
             case $this->object instanceof ServicegroupSummary:
                 $renderer = new ServicegroupRenderer();
 
-                break;
-            /* GeBi - Custom Summary Models */
+		break;
+
+            /* GeBi - Custom */
             case $this->object instanceof HostgroupprojectSummary:
                 $renderer = new HostgroupprojectRenderer();
 
